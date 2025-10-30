@@ -4,6 +4,7 @@ import puppeteer, { Browser, Page } from "puppeteer";
 import { GPMLoginSDK } from "./sdk/gpm-login-sdk.js";
 import { Bot } from "./bot/index.js";
 import { initWeb } from "./crawler/init.web.js";
+import crawler from "./crawler/index.js";
 
 const app = express();
 
@@ -29,7 +30,7 @@ const start = async () => {
 	// } catch (error) {
 	// 	console.log(error);
 	// }
-	await initWeb()
+	await crawler()
 };
 
 start();
