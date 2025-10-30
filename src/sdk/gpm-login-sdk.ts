@@ -36,4 +36,12 @@ export class GPMLoginSDK {
         );
         return data;
     }
+
+    async getRemoteDebuggingBrowser(remote_debugging_address: any) {
+        const validRemoteDebuggingAddress = remote_debugging_address.startsWith('http://')
+        ? remote_debugging_address
+        : 'http://' + remote_debugging_address;
+        const { data } = await axios.get(validRemoteDebuggingAddress + '/json/version');
+        return data;
+    }
 }

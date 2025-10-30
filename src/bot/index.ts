@@ -1,4 +1,4 @@
-
+import puppeteer from 'puppeteer';
 
 export class Bot {
     private gpm: any;
@@ -13,13 +13,17 @@ export class Bot {
         return this._browser;
     }
 
-    set browser(value: any) {
-        this._browser = value;
-    }
-
     async setup(profile_id: string) {
         try {
-            const { data, message } = await this.gpm
+            const { data, message } = await this.gpm.startProfile(profile_id)
+            if (data) {
+                const { remote_debugging_address } = data
+                const { webSocketDebuggerUrl } = await this.gpm.getRemoteDebuggingBrowser(remote_debugging_address)
+                this._browser = await puppeteer.connect({browserWSEndpoint: webSocketDebuggerUrl})
+                return this
+            } else {
+                throw new Error(message ?? 'Lỗi setup bot control!');
+            }
         } catch (error: any) {
             console.log(error.message);
         }

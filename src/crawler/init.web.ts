@@ -14,6 +14,13 @@ export const initWeb = async () => {
         console.log("Profile started:", startRes);
 
         const bot = await new Bot(gpm).setup(PROFILE_ID);
+
+        if (!bot?.browser) {
+            return
+        }
+
+        browser = bot.browser;
+        return { browser, gpm };
     } catch (error) {
         console.log(error);
     }
