@@ -2,7 +2,7 @@ const pageByUrl = async (page: any, url: any) => {
     try {
         await page.goto(url, {
             waitUntil: 'networkidle2',
-            timeout: 60000
+            timeout: 30000
         });
 
         const elements = await page.$$('.Hg3NO.VDgVie.swJ5ic.f2HKGc.ttBXeb');

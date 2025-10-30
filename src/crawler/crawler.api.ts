@@ -33,10 +33,9 @@ export const postArticle = async (listArticle: any) => {
             index: 'not_classify_org_posts',
             data: listArticleWithoutId
         };
-        console.log(JSON.stringify(data.data, null, 2));
         try {
             const res = await axios.post(ROOT_URL, data);
-            logger.info(`Gửi dữ liệu thành công: ${res.data.length} bài viết`);
+            logger.info(`Gửi dữ liệu thành công: ${data.data.length} bài viết`);
             return res.data;
         } catch (error: any) {
             console.error(`Lỗi khi gửi dữ liệu: ${error.message}`);

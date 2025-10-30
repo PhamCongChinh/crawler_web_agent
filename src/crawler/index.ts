@@ -27,7 +27,7 @@ const crawler = async () => {
                 await pageAll.close(); // luôn đóng tab
             }
         }
-        await delayCustom(3000, 5000)
+        await delayCustom(1300, 2600)
         const pageNews = await browser.newPage(); // mở tab mới cùng browser
         try {
             const pageNewsReady = await pageByUrl(pageNews, keyword.url_news);
@@ -52,7 +52,7 @@ const crawler = async () => {
         logger.info(`Thời gian crawl keyword "${keyword.keyword}": ${duration} giây`);
 
         i++
-        await delayCustom(5000, 8000);
+        await delayCustom(2000, 3200);
     }
 }
 

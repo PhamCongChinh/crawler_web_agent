@@ -35,15 +35,16 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
         let pageIndex = 1;
         while (true) {
             logger.info(`Trang [${pageIndex}]: Crawl bắt đầu với từ khóa: ${key}`);
-            await delayCustom(5000, 7000);
+            await delayCustom(1000, 3000);
 
             const articles = await crawlArticlesPerPage(page, selector, key); // Danh sách url
             let listPost = []
             let post
+            let i = 0
             if (articles) {
               for (const article of articles) {
                 const url = article.url;
-                logger.info(`Crawling ${url}`)
+                logger.info(`[${i+1}]Crawling ${url}`)
                 post = await crawlContent(article, page, browser); // await thật sự
                 listPost.push(post)
               }
@@ -53,7 +54,7 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
             await handleAfterCrawlContent(listPost)
 
             await randomScroll(page, 4000);
-            await delayCustom(1800, 2500);
+            await delayCustom(1800, 2300);
             const nextPageElement = await page.$(newsNextPageSelector);
             if (!nextPageElement) {
                 logger.info('Hết page, dừng crawl.');
@@ -66,7 +67,7 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
             }
             await nextPageElement.click();
             await page.waitForNavigation({ waitUntil: 'networkidle2' });
-
+            i++
             pageIndex++;
         }
 
