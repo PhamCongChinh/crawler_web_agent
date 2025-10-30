@@ -46,7 +46,6 @@ export const initWeb = async (agentId: string): Promise<WebAgent> => {
 
         // const page = await browser.newPage()
         const page = (await browser.pages())[0] ?? (await browser.newPage());
-        await page.setRequestInterception(true);
         logger.info(`Agent ${agentId} started with GPM`);
         return { agentId, browser, page };
 
