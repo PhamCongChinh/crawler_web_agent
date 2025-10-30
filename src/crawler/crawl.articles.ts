@@ -44,7 +44,7 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
             if (articles) {
               for (const article of articles) {
                 const url = article.url;
-                logger.info(`[${i+1}]Crawling ${url}`)
+                logger.info(`[${i+1}] ${url}`)
                 post = await crawlContent(article, page, browser); // await thật sự
                 listPost.push(post)
                 i++
