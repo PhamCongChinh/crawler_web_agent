@@ -26,7 +26,7 @@ export class GPMLoginSDK {
         }
     }
 
-    async startProfile(id: any, params: any) {
+    async startProfile(id: any, params?: any) {
         const queryString = await import('query-string').then(m => m.default);
         const validId = z.string().trim().parse(id);
         const validParams = startProfileSchema.parse(params) ?? {};

@@ -20,6 +20,9 @@ const start = async () => {
 	try {
 		const check = await gpm.checkConnection();
   		console.log(check);
+
+		const startRes = await gpm.startProfile(PROFILE_ID);
+  		console.log("Profile started:", startRes);
 	} catch (error) {
 		console.log(error);
 	}
