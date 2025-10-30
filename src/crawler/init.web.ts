@@ -14,41 +14,41 @@ interface WebAgent {
 
 export const initWeb = async (agentId: string): Promise<WebAgent> => {
     try {
-        const check = await gpm.checkConnection();
-        console.log(check);
+        // const check = await gpm.checkConnection();
+        // console.log(check);
 
-        const startRes = await gpm.startProfile(PROFILE_ID);
-        console.log("Profile started:", startRes);
+        // const startRes = await gpm.startProfile(PROFILE_ID);
+        // console.log("Profile started:", startRes);
 
-        const bot = await new Bot(gpm).setup(PROFILE_ID);
+        // const bot = await new Bot(gpm).setup(PROFILE_ID);
 
-        const browser = bot?.browser;
+        // const browser = bot?.browser;
 
-        if (!browser) {
-            console.error("❌ Browser chưa được khởi tạo. Có thể GPM chưa start hoặc connect lỗi.");
-        }
-        const page = (await browser.pages())[0] ?? (await browser.newPage());
-        console.log(`🚀 Agent ${agentId} started with GPM`);
-        return { agentId, browser, page };
-
-
-
-        // const browser: Browser = await puppeteer.launch({
-        //     headless: false,                      // hiển thị giao diện thật
-        //     defaultViewport: null,                // dùng độ phân giải thật
-        //     args: [
-        //         "--no-sandbox",
-        //         "--disable-setuid-sandbox",
-        //         "--disable-infobars",
-        //         "--start-maximized"
-        //     ],
-        //     executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" // nếu muốn dùng Chrome thật
-        // });
-
+        // if (!browser) {
+        //     console.error("❌ Browser chưa được khởi tạo. Có thể GPM chưa start hoặc connect lỗi.");
+        // }
         // const page = (await browser.pages())[0] ?? (await browser.newPage());
-
-        // console.log(`🚀 Agent ${agentId} started`);
+        // console.log(`🚀 Agent ${agentId} started with GPM`);
         // return { agentId, browser, page };
+
+
+
+        const browser: Browser = await puppeteer.launch({
+            headless: false,                      // hiển thị giao diện thật
+            defaultViewport: null,                // dùng độ phân giải thật
+            args: [
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-infobars",
+                "--start-maximized"
+            ],
+            executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" // nếu muốn dùng Chrome thật
+        });
+
+        const page = (await browser.pages())[0] ?? (await browser.newPage());
+
+        console.log(`🚀 Agent ${agentId} started`);
+        return { agentId, browser, page };
     } catch (error) {
         console.error(`❌ Lỗi khởi tạo agent ${agentId}:`, error);
         throw error; // bắt buộc throw để TS hiểu luôn trả về WebAgent hoặc lỗi
