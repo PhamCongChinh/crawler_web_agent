@@ -1,10 +1,10 @@
 import { initWeb } from "./init.web.js";
 
 const crawler = async () => {
-
-    const browser = await initWeb()
-
-    let [page] = await browser.newPage();
+    const agent = 'agent-01'
+    // const { browser, page } = (await initWeb("agent-1"))!;
+    const { browser, page } = await initWeb(agent);
+    
     await delay(5000); // delay 1 giây
     console.log("Done after 1s")
 
