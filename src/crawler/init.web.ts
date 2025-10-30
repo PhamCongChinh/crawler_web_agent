@@ -20,7 +20,7 @@ export const initWeb = async () => {
         }
 
         browser = bot.browser;
-        return { browser, gpm };
+        return browser;
     } catch (error) {
         console.log(error);
     }
