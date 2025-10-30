@@ -1,7 +1,7 @@
 import { initWeb } from "./init.web.js";
 
 const crawler = async () => {
-    
+
     const browser = await initWeb()
 
     let page = await browser.newPage();
