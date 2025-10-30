@@ -1,4 +1,6 @@
+import logger from "../config/logger.config.js";
 import KeywordModel from "../models/keyword.model.js";
+import { delayCustom } from "../utils/delayCustom.js";
 import crawlArticles from "./crawl.articles.js";
 import { initWeb } from "./init.web.js";
 import pageByUrl from "./page.url.js";
@@ -9,22 +11,49 @@ const crawler = async () => {
 
     const agent = 'agent-01'
     const { browser, page } = await initWeb(agent);
-    await delay(5000); // delay 1 giây
+    await delayCustom(4000,5000);
 
-    let count = 1
+    let i = 0
     for(let keyword of listKeyword) {
-        console.log(`[${count}/${listKeyword.length}] Từ khóa`);
+        logger.info(`[${i + 1}/${listKeyword.length}] Crawling từ khóa: ${keyword.keyword} - URL: ${keyword.url}`);
+        const startTime = Date.now();
         let pageAll = await pageByUrl(page, keyword.url)
         if (pageAll) {
-            await crawlArticles(browser, pageAll, 'All', keyword.keyword);
+            try {
+                await crawlArticles(browser, pageAll, 'All', keyword.keyword);
+            } catch (err: any) {
+                logger.error(`Lỗi crawl pageAll cho ${keyword.keyword}: ${err.message}`);
+            } finally {
+                await pageAll.close(); // luôn đóng tab
+            }
+        }
+        await delayCustom(3000, 5000)
+        const pageNews = await browser.newPage(); // mở tab mới cùng browser
+        try {
+            const pageNewsReady = await pageByUrl(pageNews, keyword.url_news);
+            if (pageNewsReady) {
+                try {
+                    await crawlArticles(browser, pageNewsReady, 'News', keyword.keyword);
+                } catch (err: any) {
+                    logger.error(`Lỗi crawl pageNews cho ${keyword.keyword}: ${err.message}`);
+                } finally {
+                    await pageNewsReady.close();
+                }
+            } else {
+                logger.error(`Không mở được pageNews cho keyword: ${keyword.keyword}`);
+                await pageNews.close();
+            }
+        } catch (err: any) {
+            logger.error(`Lỗi khi xử lý pageNews cho ${keyword.keyword}: ${err.message}`);
         }
 
-        await delay(5000)
-        count++
-    }
-    console.log("Done after 1s")
+        const endTime = Date.now();
+        const duration = ((endTime - startTime) / 1000).toFixed(2); // tính giây
+        logger.info(`Thời gian crawl keyword "${keyword.keyword}": ${duration} giây`);
 
+        i++
+        await delayCustom(5000, 8000);
+    }
 }
 
 export default crawler
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));

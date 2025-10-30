@@ -3,6 +3,7 @@ import { getSelectorsAllType, getSelectorsNewsType } from "../config/selector.co
 import { delayCustom } from "../utils/delayCustom.js";
 import { crawlArticlesPerPage } from "./crawl.articlesperpage.js";
 import { crawlContent } from "./crawle.content.js";
+import { handleAfterCrawlContent } from "./crawler.api.js";
 
 async function randomScroll(page: any, maxScroll = 5000) {
   await page.evaluate(async (maxScroll: number) => {
@@ -33,19 +34,23 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
 
         let pageIndex = 1;
         while (true) {
-            console.log(`Trang [${pageIndex}]: Crawl bắt đầu với từ khóa: ${key}`);
+            logger.info(`Trang [${pageIndex}]: Crawl bắt đầu với từ khóa: ${key}`);
             await delayCustom(5000, 7000);
 
             const articles = await crawlArticlesPerPage(page, selector, key); // Danh sách url
-            // logger.info(JSON.stringify(articles, null, 2));
             let listPost = []
+            let post
             if (articles) {
               for (const article of articles) {
                 const url = article.url;
-                console.log(`[article] ${url}`);
-                await crawlContent(article, page, browser); // await thật sự
+                logger.info(`Crawling ${url}`)
+                post = await crawlContent(article, page, browser); // await thật sự
+                listPost.push(post)
               }
             }
+
+            // push lên api
+            await handleAfterCrawlContent(listPost)
 
             await randomScroll(page, 4000);
             await delayCustom(1800, 2500);

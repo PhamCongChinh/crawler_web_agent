@@ -31,6 +31,23 @@ export const initWeb = async (agentId: string): Promise<WebAgent> => {
         // console.log(`🚀 Agent ${agentId} started with GPM`);
         // return { agentId, browser, page };
 
+        // const check = await gpm.checkConnection();
+        // console.log("GPM connected?", check);
+        // if (!check) throw new Error("GPM chưa kết nối được.");
+
+        // const startRes = await gpm.startProfile(PROFILE_ID);
+        // console.log("Profile started:", startRes);
+        // if (!startRes) throw new Error("Không start được profile.");
+
+        // const bot = await new Bot(gpm).setup(PROFILE_ID);
+        // const browser = bot.browser!;
+        // if (!browser) throw new Error("Browser chưa được khởi tạo. Có thể GPM chưa start hoặc connect lỗi.");
+
+        // // const page = await browser.newPage()
+        // const page = (await browser.pages())[0] ?? (await browser.newPage());
+        // console.log(`🚀 Agent ${agentId} started with GPM`);
+        // return { agentId, browser, page };
+
 
 
         const browser: Browser = await puppeteer.launch({

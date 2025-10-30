@@ -11,6 +11,7 @@ import morgan from "morgan";
 import type { Application } from "express";
 import dotenv from "dotenv";
 import keywordRoutes from "./routes/keyword.routes.js";
+import logger from "./config/logger.config.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 4000;
@@ -25,29 +26,41 @@ app.use(morgan("dev"));
   	await mongo.connect()
 
 	const server = app.listen(PORT, () => {
-		console.log(`Server is running at http://localhost:${PORT}`);
+		logger.info(`Server is running at http://localhost:${PORT}`);
 	});
 
-	await crawler()
-
-	// Khi người dùng nhấn Ctrl+C hoặc container stop
-	process.on("SIGINT", async () => {
+	const gracefulShutdown = async () => {
 		console.log("Gracefully shutting down...");
 		await mongo.disconnect();
 		server.close(() => {
 			console.log("Server stopped, MongoDB connection closed");
 			process.exit(0);
 		});
-	});
+	};
 
-	process.on("SIGTERM", async () => {
-		console.log("🧹 Gracefully shutting down (SIGTERM)...");
-		await mongo.disconnect();
-		server.close(() => {
-			console.log("🛑 Server stopped, MongoDB connection closed");
-			process.exit(0);
-		});
-	});
+	process.on("SIGINT", gracefulShutdown);
+	process.on("SIGTERM", gracefulShutdown);
+
+	// await crawler()
+
+	const intervalMs = 60 * 1000; // 1 phút
+
+    while (true) {
+        const startTime = Date.now();
+        try {
+            logger.info("Bắt đầu crawl...");
+            await crawler(); // đợi crawler xong
+            logger.info("Crawl xong!");
+        } catch (err: any) {
+            logger.error("Lỗi khi crawl:", err.message);
+        }
+
+        const elapsed = Date.now() - startTime;
+        const delayTime = Math.max(intervalMs - elapsed, 0); // đảm bảo cách nhau ít nhất 1 phút
+        logger.info(`Chờ ${delayTime / 1000} giây trước lần crawl tiếp theo...`);
+        await new Promise((resolve) => setTimeout(resolve, delayTime));
+    }
+
 })();
 
 app.get("/", (_, res) => {

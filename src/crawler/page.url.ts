@@ -13,10 +13,9 @@ const pageByUrl = async (page: any, url: any) => {
                 break;
             }
         }
-
         return page
     } catch (error) {
-        
+        return null;
     }
 }
 
