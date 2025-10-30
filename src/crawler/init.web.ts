@@ -39,13 +39,22 @@ export const initWeb = async (agentId: string): Promise<WebAgent> => {
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
-                "--disable-infobars",
-                "--start-maximized"
+                "--disable-infobars",                     // ẩn infobars
+                "--start-maximized",
+                "--disable-blink-features=AutomationControlled", // giảm dấu vết automation
+                "--disable-dev-shm-usage",
             ],
             executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" // nếu muốn dùng Chrome thật
         });
 
         const page = (await browser.pages())[0] ?? (await browser.newPage());
+        await page.evaluateOnNewDocument(() => {
+            Object.defineProperty(navigator, "webdriver", { get: () => false });
+            Object.defineProperty(navigator, "languages", { get: () => ["vi-VN", "vi", "en-US", "en"] });
+            Object.defineProperty(navigator, "plugins", {
+            get: () => [1, 2, 3, 4, 5],
+            });
+        });
 
         console.log(`🚀 Agent ${agentId} started`);
         return { agentId, browser, page };

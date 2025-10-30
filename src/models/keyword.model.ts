@@ -23,9 +23,10 @@ const keywordSchema = new Schema<IKeyword>(
 );
 
 // 📦 Tạo Mongoose model
-export const Keyword = mongoose.model<IKeyword>("crawler_keywords", keywordSchema);
+export const Keyword = mongoose.model<IKeyword>("web_keywords", keywordSchema);
 
 export class KeywordModel extends BaseModel<IKeyword> {
+  
   constructor() {
     super(Keyword);
   }
@@ -35,6 +36,14 @@ export class KeywordModel extends BaseModel<IKeyword> {
    */
   async findByKeyword(keyword: string): Promise<IKeyword | null> {
     return await Keyword.findOne({ keyword }).exec();
+  }
+
+  static async findByOrgName() {
+    try {
+      return await Keyword.find({ org_name: "T&T" }).lean();
+    } catch (error: any) {
+      throw new Error(error);
+    }
   }
 
   /**
