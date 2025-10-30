@@ -9,7 +9,8 @@ export class GPMLoginSDK {
     private _api_root = "api/v3/";
 
     constructor(config: TGPMConfig = { url: "http://127.0.0.1:19995" }) {
-        this._config = { ...config, api_url: `${config.url}/${this._api_root}` };
+        const _api_root = config.url.endsWith('/') ? this._api_root : `/${this._api_root}`;
+        this._config = { ...config, api_url: `${config.url}/${_api_root}` };
     }
 
     /** Lấy danh sách profile */
