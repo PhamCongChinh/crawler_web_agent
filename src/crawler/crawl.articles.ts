@@ -47,6 +47,7 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
                 logger.info(`[${i+1}]Crawling ${url}`)
                 post = await crawlContent(article, page, browser); // await thật sự
                 listPost.push(post)
+                i++
               }
             }
 
@@ -67,7 +68,7 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
             }
             await nextPageElement.click();
             await page.waitForNavigation({ waitUntil: 'networkidle2' });
-            i++
+            
             pageIndex++;
         }
 

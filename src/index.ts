@@ -43,7 +43,7 @@ app.use(morgan("dev"));
 
 	// await crawler()
 
-	const intervalMs = 60 * 1000; // 1 phút
+	const intervalMs = 20 * 1000; // 1 phút
 
     while (true) {
         const startTime = Date.now();
