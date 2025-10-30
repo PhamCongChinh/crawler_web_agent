@@ -15,11 +15,12 @@ export const initWeb = async () => {
 
         const bot = await new Bot(gpm).setup(PROFILE_ID);
 
-        if (!bot?.browser) {
-            return
-        }
+        _browser = bot?.browser;
 
-        _browser = bot.browser;
+        if (!_browser) {
+            console.error("❌ Browser chưa được khởi tạo. Có thể GPM chưa start hoặc connect lỗi.");
+            return;
+        }
         return _browser;
     } catch (error) {
         console.log(error);
