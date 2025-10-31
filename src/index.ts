@@ -43,23 +43,24 @@ app.use(morgan("dev"));
 
 	// await crawler()
 
-	const intervalMs = 20 * 1000; // 1 phút
+	const intervalMs = 20 * 1000;
 
-    while (true) {
-        const startTime = Date.now();
-        try {
-            logger.info("Bắt đầu crawl...");
-            await crawler(); // đợi crawler xong
-            logger.info("Crawl xong!");
-        } catch (err: any) {
-            logger.error("Lỗi khi crawl:", err.message);
-        }
+	while (true) {
+		try {
+			logger.info("Bắt đầu crawl...");
+			await crawler(); // chặn tới khi crawler xong
+			logger.info("Crawl xong!");
+		} catch (err: any) {
+			logger.error("Lỗi khi crawl:", err.message);
+			logger.info("Khởi động lại crawler sau 5 giây...");
+			await new Promise(resolve => setTimeout(resolve, 5000)); // delay trước khi restart
+			continue; // quay lại vòng lặp
+		}
 
-        const elapsed = Date.now() - startTime;
-        const delayTime = Math.max(intervalMs - elapsed, 0); // đảm bảo cách nhau ít nhất 1 phút
-        logger.info(`Chờ ${delayTime / 1000} giây trước lần crawl tiếp theo...`);
-        await new Promise((resolve) => setTimeout(resolve, delayTime));
-    }
+		// delay cố định sau khi crawl xong
+		logger.info(`Chờ ${intervalMs / 1000} giây trước lần crawl tiếp theo...`);
+		await new Promise(resolve => setTimeout(resolve, intervalMs));
+	}
 
 })();
 

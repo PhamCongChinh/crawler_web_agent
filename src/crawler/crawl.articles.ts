@@ -33,7 +33,7 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
         const newsNextPageSelector = selector.newsNextPageSelector;
 
         let pageIndex = 1;
-        while (true) {
+        while (pageIndex < 11) {
             logger.info(`Trang [${pageIndex}]: Crawl bắt đầu với từ khóa: ${key}`);
             await delayCustom(1000, 3000);
 
@@ -72,8 +72,8 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
             pageIndex++;
         }
 
-    } catch (error) {
-        
+    } catch (error: any) {
+        logger.error(`Lỗi crawlArticles cho ${key}: ${error.message}`);
     }
 }
 

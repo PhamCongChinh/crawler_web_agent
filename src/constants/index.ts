@@ -1,7 +1,7 @@
 export const LINE_STRING = '---------------------------------------------------------------------------';
 
-export const ROOT_URL = 'http://103.97.125.64:4416/api/v1/posts/insert-unclassified-org-posts'
-// export const ROOT_URL = 'http://123.24.128.46:4420/api/v1/posts/insert-unclassified-org-posts'
+// export const ROOT_URL = 'http://103.97.125.64:4416/api/v1/posts/insert-unclassified-org-posts'
+export const ROOT_URL = 'http://123.24.128.46:4420/api/v1/posts/insert-unclassified-org-posts'
 
 export const NUMBER_ARTICLE_PER_CHUNK = 20;
 

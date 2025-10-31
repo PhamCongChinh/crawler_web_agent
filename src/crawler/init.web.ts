@@ -3,7 +3,7 @@ import { Bot } from "../bot/index.js";
 import { GPMLoginSDK } from "../sdk/index.js";
 import logger from "../config/logger.config.js";
 
-const PROFILE_ID = "769be3c5-f8ff-4691-833b-30fce2b488d9"; // lấy trong GPM Login app
+const PROFILE_ID = "4e6b81aa-2652-423d-b14e-f720f71b9ceb"; // lấy trong GPM Login app
 const gpm = new GPMLoginSDK({ url: "http://127.0.0.1:16137" });
 
 
@@ -32,6 +32,7 @@ export const initWeb = async (agentId: string): Promise<WebAgent> => {
         // console.log(`🚀 Agent ${agentId} started with GPM`);
         // return { agentId, browser, page };
 
+        // C2
         const check = await gpm.checkConnection();
         // console.log("GPM connected?", check);
         if (!check) throw new Error("GPM chưa kết nối được.");
@@ -50,7 +51,7 @@ export const initWeb = async (agentId: string): Promise<WebAgent> => {
         return { agentId, browser, page };
 
 
-
+        // C3
         // const browser: Browser = await puppeteer.launch({
         //     headless: false,                      // hiển thị giao diện thật
         //     defaultViewport: null,                // dùng độ phân giải thật
