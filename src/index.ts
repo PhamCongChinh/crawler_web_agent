@@ -12,6 +12,7 @@ import type { Application } from "express";
 import dotenv from "dotenv";
 import keywordRoutes from "./routes/keyword.routes.js";
 import logger from "./config/logger.config.js";
+import { cleanupVisited } from "./crawler/crawl.articles.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 4000;
@@ -42,6 +43,8 @@ app.use(morgan("dev"));
 	process.on("SIGTERM", gracefulShutdown);
 
 	// await crawler()
+
+	cleanupVisited(3);
 
 	const intervalMs = 15 * 1000;
 

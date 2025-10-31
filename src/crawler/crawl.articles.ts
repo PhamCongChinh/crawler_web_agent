@@ -4,6 +4,12 @@ import { delayCustom } from "../utils/delayCustom.js";
 import { crawlArticlesPerPage } from "./crawl.articlesperpage.js";
 import { crawlContent } from "./crawle.content.js";
 import { handleAfterCrawlContent } from "./crawler.api.js";
+import { fileURLToPath } from "url";
+
+import fs from 'fs';
+import path from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function randomScroll(page: any, maxScroll = 5000) {
   await page.evaluate(async (maxScroll: number) => {
@@ -27,6 +33,48 @@ async function randomScroll(page: any, maxScroll = 5000) {
 }
 
 
+const VISITED_URL = path.resolve(__dirname, 'visited.json');
+export function loadVisited(): Set<string> {
+	try {
+		if (!fs.existsSync(VISITED_URL)) {
+			fs.writeFileSync(VISITED_URL, "[]", "utf8");
+		}
+		const data = fs.readFileSync(VISITED_URL, "utf8");
+		const arr: string[] = JSON.parse(data);
+		return new Set(arr);
+	} catch (err: any) {
+		logger.warn("Không đọc được visited.json:", err.message);
+		return new Set();
+	}
+}
+export function saveVisited(visited: Set<string>) {
+	try {
+		fs.writeFileSync(VISITED_URL, JSON.stringify([...visited], null, 2), "utf8");
+	} catch (err: any) {
+		logger.error("Lỗi khi ghi visited.json:", err.message);
+	}
+}
+
+export function addVisited(url: string, visited: Set<string>) {
+	visited.add(url);
+	saveVisited(visited);
+}
+
+const visited = loadVisited();
+
+export const cleanupVisited = (days = 3) => {
+	if (!fs.existsSync(VISITED_URL)) return;
+
+	const stats = fs.statSync(VISITED_URL);
+	const ageMs = Date.now() - stats.mtimeMs;
+	const ageDays = ageMs / (1000 * 60 * 60 * 24);
+
+	if (ageDays > days) {
+		fs.unlinkSync(VISITED_URL);
+		logger.info(`Xoá visited.json (quá ${days} ngày)`);
+	}
+};
+
 const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
     try {
         const selector = type === 'All' ? getSelectorsAllType : getSelectorsNewsType;
@@ -44,7 +92,14 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
             if (articles?.length) {
 				for (const article of articles) {
 					const url = article.url;
-					const shortUrl = url.length > 20 ? url.slice(0, 20) + "..." : url;
+					// in url ra json
+					if (visited.has(url)) {
+						const urlVisited = url.length > 30 ? url.slice(0, 30) + "..." : url;
+						logger.info(`Bỏ qua (đã crawl): ${urlVisited}`);
+						continue;
+					}
+					addVisited(url, visited);
+					const shortUrl = url.length > 30 ? url.slice(0, 30) + "..." : url;
 					logger.info(`[${key}][${type}] - Bài viết [${i+1}] ${shortUrl}`)
 					post = await crawlContent(article, page, browser); // await thật sự
 					listPost.push(post)

@@ -2,6 +2,9 @@ import axios from "axios";
 import logger from "../config/logger.config.js";
 import { ROOT_URL } from "../constants/index.js";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 export const handleAfterCrawlContent = async (listArticleContent: any) => {
     try {
         const resApi = await postArticle(listArticleContent);
@@ -35,10 +38,10 @@ export const postArticle = async (listArticle: any) => {
         };
         try {
             const res = await axios.post(ROOT_URL, data);
-            logger.info(`Gửi dữ liệu thành công: ${data.data.length} bài viết`);
+            logger.info(`[SUCCESS] Gửi dữ liệu thành công: ${data.data.length} bài viết - ${process.env.URL_API_MASTER}`);
             return res.data;
         } catch (error: any) {
-            console.error(`Lỗi khi gửi dữ liệu: ${error.message}`);
+            console.error(`[ERROR] Lỗi khi gửi dữ liệu: ${error.message}`);
             return null;
         }
     } catch (error: any) {

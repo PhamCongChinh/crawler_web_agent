@@ -162,7 +162,7 @@ export const crawlContent = async (article: any, page: any, browser: any) => {
         if (contentAfterValidate) {
             post = convertContentToPost(article, contentAfterValidate)
         }
-        await delayCustom(2000,4000)
+        await delayCustom(1000,2000)
         return post
     } catch (error:any) {
         logger.error(`Error crawling ${article.url}: ${error.message}`);
