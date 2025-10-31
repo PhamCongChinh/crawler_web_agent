@@ -2,7 +2,7 @@ const pageByUrl = async (page: any, url: any) => {
     try {
         await page.goto(url, {
             waitUntil: 'domcontentloaded',
-            timeout: 30000
+            timeout: 20000
         });
         //domcontentloaded
         const elements = await page.$$('.Hg3NO.VDgVie.swJ5ic.f2HKGc.ttBXeb');

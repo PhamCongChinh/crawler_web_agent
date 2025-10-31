@@ -43,7 +43,7 @@ app.use(morgan("dev"));
 
 	// await crawler()
 
-	const intervalMs = 20 * 1000;
+	const intervalMs = 15 * 1000;
 
 	while (true) {
 		try {
@@ -56,7 +56,6 @@ app.use(morgan("dev"));
 			await new Promise(resolve => setTimeout(resolve, 5000)); // delay trước khi restart
 			continue; // quay lại vòng lặp
 		}
-
 		// delay cố định sau khi crawl xong
 		logger.info(`Chờ ${intervalMs / 1000} giây trước lần crawl tiếp theo...`);
 		await new Promise(resolve => setTimeout(resolve, intervalMs));
@@ -69,26 +68,3 @@ app.get("/", (_, res) => {
 });
 
 app.use("/api/keywords", keywordRoutes);
-
-
-// const PROFILE_ID = "7800e5ff-80e8-4375-af70-b567a5204e37"; // lấy trong GPM Login app
-// const gpm = new GPMLoginSDK({ url: "http://127.0.0.1:16137" });
-
-
-// const start = async () => {
-// 	const mongo = MongoConnection.getInstance();
-//   	await mongo.connect();
-// 	const keywordModel = new KeywordModel();
-// 	// 🔍 Lấy tất cả keyword (hoặc thêm filter nếu cần)
-// 	const keywords = await keywordModel.findAll();
-
-// 	console.log(`📦 Tổng số keyword: ${keywords.length}`);
-// 	// console.log(keywords.slice(0, 5)); // xem thử 5 cái đầu
-// 	await mongo.disconnect();
-	
-// 	// await crawler()
-// };
-
-// start();
-
-// app.listen(3000, () => console.log("✅ Server started: http://localhost:3000"));

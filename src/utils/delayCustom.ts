@@ -1,3 +1,5 @@
+import logger from "../config/logger.config.js";
+
 /**
  * @description Hàm delay ngẫu nhiên giữa hai khoảng thời gian
  * * Nếu timeMin và timeMax bằng nhau, thì sẽ delay đúng thời gian đó.
@@ -13,7 +15,7 @@ export const delayCustom = async (
     timeMin === timeMax
       ? timeMax
       : Math.floor(Math.random() * (timeMax - timeMin + 1) + timeMin);
-  //   logger.info(`Delay ${time} ms`);
+    // logger.info(`Delay ${time} ms`);
   return new Promise((resolve) => {
     setTimeout(resolve, time);
   });

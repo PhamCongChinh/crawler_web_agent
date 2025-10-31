@@ -33,26 +33,29 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
         const newsNextPageSelector = selector.newsNextPageSelector;
 
         let pageIndex = 1;
-        while (pageIndex < 11) {
-            logger.info(`Trang [${pageIndex}]: Crawl bắt đầu với từ khóa: ${key}`);
+        while (true) {
+            logger.info(`[${key}][${type}] - Trang ${pageIndex}: Crawl bắt đầu với từ khóa: ${key}`);
             await delayCustom(1000, 3000);
 
             const articles = await crawlArticlesPerPage(page, selector, key); // Danh sách url
-            let listPost = []
-            let post
+            const listPost: any[] = [];
+            let post: any
             let i = 0
-            if (articles) {
-              for (const article of articles) {
-                const url = article.url;
-                logger.info(`[${i+1}] ${url}`)
-                post = await crawlContent(article, page, browser); // await thật sự
-                listPost.push(post)
-                i++
-              }
+            if (articles?.length) {
+				for (const article of articles) {
+					const url = article.url;
+					const shortUrl = url.length > 20 ? url.slice(0, 20) + "..." : url;
+					logger.info(`[${key}][${type}] - Bài viết [${i+1}] ${shortUrl}`)
+					post = await crawlContent(article, page, browser); // await thật sự
+					listPost.push(post)
+					i++
+				}
             }
 
             // push lên api
             await handleAfterCrawlContent(listPost)
+			// pageIndex++
+			// break
 
             await randomScroll(page, 4000);
             await delayCustom(1800, 2300);
@@ -66,8 +69,12 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
                 logger.info('Hết page tiếp theo, dừng crawl.')
                 break;
             }
-            await nextPageElement.click();
-            await page.waitForNavigation({ waitUntil: 'networkidle2' });
+            // await nextPageElement.click();
+            // await page.waitForNavigation({ waitUntil: 'networkidle2' });
+			await Promise.all([
+				page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 20000 }),
+				nextPageElement.click(),
+			]);
             
             pageIndex++;
         }
