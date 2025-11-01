@@ -25,6 +25,8 @@ export const convertContentToPost = (article: any, articleContent: any) => {
   const articleAfterValidate = validateBeforeConvert(article, articleContent);
 
   const author = extractSource(article.url);
+  const image = articleContent.image ? [articleContent.image] : []
+  
 
   const post = {
     doc_type: PROP_POST.DOC_TYPE,
@@ -36,7 +38,8 @@ export const convertContentToPost = (article: any, articleContent: any) => {
     title: articleAfterValidate.title,
     content: articleAfterValidate.content,
     url: articleAfterValidate.url,
-    media_urls: PROP_POST.MEDIA_URL,
+    // media_urls: PROP_POST.MEDIA_URL,
+    media_urls: image,
     comments: PROP_POST.COMMENT,
     shares: PROP_POST.SHARE,
     reactions: PROP_POST.REACTION,

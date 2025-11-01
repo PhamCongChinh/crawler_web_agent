@@ -124,6 +124,7 @@ const generateContentBySelector = async (page: any, selector: any) => {
             const getPublicationTime = getElementText(selectors.timeSelector);
             const getMainContent = getElementText(selectors.contentSelector);
 
+            // Nhiều ảnh
             // const contentElement = document.querySelector(selectors.contentSelector);
             // let firstImage = null;
             // if (contentElement) {
@@ -131,10 +132,18 @@ const generateContentBySelector = async (page: any, selector: any) => {
             //     firstImage = images[0]?.src ?? null;
             // }
 
+            let firstImage = null;
+            const contentElement = document.querySelector(selectors.contentSelector);
+            if (contentElement) {
+                const img = contentElement.querySelector('img');
+                if (img) firstImage = img.src;
+            }
+
             return {
                 title: getTitle,
                 time_publication: getPublicationTime,
                 content: getMainContent,
+                image: firstImage,
                 createdAt: new Date().toISOString().replace("Z", "+00:00")
             };
         }, selector);
