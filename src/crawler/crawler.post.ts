@@ -39,7 +39,7 @@ export const convertContentToPost = (article: any, articleContent: any) => {
     content: articleAfterValidate.content,
     url: articleAfterValidate.url,
     // media_urls: PROP_POST.MEDIA_URL,
-    media_urls: image,
+    media_urls: JSON.stringify(image),
     comments: PROP_POST.COMMENT,
     shares: PROP_POST.SHARE,
     reactions: PROP_POST.REACTION,
