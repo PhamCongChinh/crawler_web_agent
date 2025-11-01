@@ -132,12 +132,34 @@ const generateContentBySelector = async (page: any, selector: any) => {
             //     firstImage = images[0]?.src ?? null;
             // }
 
-            let firstImage = null;
             const contentElement = document.querySelector(selectors.contentSelector);
-            if (contentElement) {
-                const img = contentElement.querySelector('img');
-                if (img) firstImage = img.src;
+            let firstImage = null;
+            const img = contentElement.querySelector('img');
+            if (img) {
+            firstImage =
+                img.src && !img.src.startsWith('data:')
+                ? img.src
+                : img.dataset.src ||
+                    img.dataset.original ||
+                    img.getAttribute('data-src') ||
+                    img.getAttribute('data-original') ||
+                    (img.srcset
+                    ? img.srcset.split(',')[0].trim().split(' ')[0]
+                    : null);
             }
+
+            // const images = Array.from(contentElement.querySelectorAll('img'))
+            // .map(img =>
+            //     img.src && !img.src.startsWith('data:')
+            //     ? img.src
+            //     : img.dataset.src ||
+            //         img.getAttribute('data-src') ||
+            //         img.getAttribute('data-original') ||
+            //         (img.srcset ? img.srcset.split(',')[0].trim().split(' ')[0] : null)
+            // )
+            // .filter(Boolean); // loại bỏ null hoặc undefined
+
+            // const firstImage = images[0] || null; đây đưa sang crawler.post.ts
 
             return {
                 title: getTitle,
@@ -170,6 +192,7 @@ export const crawlContent = async (article: any, page: any, browser: any) => {
         
         if (contentAfterValidate) {
             post = convertContentToPost(article, contentAfterValidate)
+            console.log(JSON.stringify(post, null, 2));
         }
         await delayCustom(1000,2000)
         return post
