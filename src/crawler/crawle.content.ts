@@ -192,7 +192,6 @@ export const crawlContent = async (article: any, page: any, browser: any) => {
         
         if (contentAfterValidate) {
             post = convertContentToPost(article, contentAfterValidate)
-            console.log(JSON.stringify(post, null, 2));
         }
         await delayCustom(1000,2000)
         return post
