@@ -13,6 +13,7 @@ import dotenv from "dotenv";
 import keywordRoutes from "./routes/keyword.routes.js";
 import logger from "./config/logger.config.js";
 import { cleanupVisited } from "./crawler/crawl.articles.js";
+import runConsumer from "./kafka/consumer.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 4000;
@@ -49,7 +50,8 @@ app.use(morgan("dev"));
 	while (true) {
 		try {
 			logger.info("Bắt đầu crawl...");
-			await crawler(); // chặn tới khi crawler xong
+			// await crawler(); // chặn tới khi crawler xong
+			await runConsumer()
 			logger.info("Crawl xong!");
 		} catch (err: any) {
 			logger.error("Lỗi khi crawl:", err.message);

@@ -12,11 +12,10 @@ const crawler = async () => {
     // const listKeyword = await KeywordModel.findKeywords()
     const orgs_id = JSON.parse(envConfig.ORG_ID || "[]");
     const keywords = await KeywordModel.findByOrgId(orgs_id);
-    console.log(keywords.length);
 
     const agent = 'agent-01'
     const { browser, page } = await initWeb(agent);
-    await delayCustom(4000,5000);
+    await delayCustom(3000,5000);
 
     let i = 0
     for(let keyword of keywords) {
