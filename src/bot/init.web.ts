@@ -4,7 +4,7 @@ import { GPMLoginSDK } from "../sdk/index.js";
 import logger from "../config/logger.config.js";
 import { envConfig } from "../config/env.config.js";
 
-const PROFILE_ID = envConfig.PROFILE_ID
+const PROFILE_ID = envConfig.PROFILE_ID; // lấy trong GPM Login app
 const gpm = new GPMLoginSDK({ url: envConfig.GPM_URL });
 
 
@@ -12,6 +12,7 @@ interface WebAgent {
     agentId: string;
     browser: Browser;
     page: Page;
+    gpm?: GPMLoginSDK
 }
 
 export const initWeb = async (agentId: string): Promise<WebAgent> => {

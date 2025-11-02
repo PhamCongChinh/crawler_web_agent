@@ -44,4 +44,25 @@ export class GPMLoginSDK {
         const { data } = await axios.get(validRemoteDebuggingAddress + '/json/version');
         return data;
     }
+
+    async closeProfile(id: any) {
+        const validId = z.string().trim().parse(id);
+        const { data } = await axios.post(this._config.api_url + `profiles/close/${validId}`);
+        return data;
+    }
+
+    // async getProfiles(params) {
+    //     const queryString = await import('query-string').then(m => m.default);
+    //     const validParams = getProfilesSchema.parse(params) ?? {};
+    //     const { data } = await axios.get(
+    //     this._config.api_url + 'profiles?' + queryString.stringify(validParams, { skipEmptyString: true, skipNull: true })
+    //     );
+    //     return data;
+    // }
+
+    async getProfile(id: any) {
+        const validId = z.string().trim().parse(id);
+        const { data } = await axios.get(this._config.api_url + `profiles/${validId}`);
+        return data;
+    }
 }

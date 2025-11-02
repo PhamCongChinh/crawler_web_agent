@@ -15,7 +15,6 @@ const crawler = async () => {
 
     let i = 0
     for(let keyword of listKeyword) {
-        // if (i===2) break
         logger.info(`[${i + 1}/${listKeyword.length}] Crawling từ khóa: ${keyword.keyword}`);
 
         const startTime = Date.now();

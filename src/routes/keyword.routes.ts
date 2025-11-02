@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { getAllKeywords } from "../controllers/keyword.controller.js";
+import { createKeywords, getAllKeywords } from "../controllers/keyword.controller.js";
 
 const router: Router = Router();
 
 router.get("/", getAllKeywords);
+router.get("/create-keyword", createKeywords);
 
 export default router;

@@ -5,7 +5,8 @@ export interface IKeyword extends IBaseDocument {
   keyword: string;
   url: string;
   url_news: string;
-  org_name: string;
+  // org_name: string;
+  org_id: number;
 }
 
 // 🧱 Schema cho Mongoose
@@ -15,7 +16,8 @@ const keywordSchema = new Schema<IKeyword>(
     keyword: { type: String, required: true, unique: true },
     url: { type: String, default: "" },
     url_news: { type: String, default: "" },
-    org_name: { type: String, required: true },
+    // org_name: { type: String, required: true },
+    org_id: { type: Number, required: true}
   },
   {
     timestamps: true,
@@ -23,20 +25,39 @@ const keywordSchema = new Schema<IKeyword>(
 );
 
 // 📦 Tạo Mongoose model
-export const Keyword = mongoose.model<IKeyword>("web_keywords", keywordSchema);
+export const Keyword = mongoose.model<IKeyword>("web_keywords_v2", keywordSchema);
 
 export class KeywordModel extends BaseModel<IKeyword> {
+  private static instance = new KeywordModel();
   
   constructor() {
     super(Keyword);
   }
 
-  /**
-   * 🔍 Tìm từ khóa theo tên
-   */
-  async findByKeyword(keyword: string): Promise<IKeyword | null> {
+  static async create(data: Partial<IKeyword>) {
+    return this.instance.model.create(data);
+  }
+
+  static async updateByKeyword(keyword: string, data: Partial<IKeyword>) {
+    return this.instance.model.updateOne(
+      {keyword},
+      { $set: data },
+      { upsert: true }
+    )
+  }
+
+  static async findByKeyword(keyword: string): Promise<IKeyword | null> {
     return await Keyword.findOne({ keyword }).exec();
   }
+
+  static async findByOrgId(org_id: number) {
+    try {
+      return Keyword.find({ org_id: org_id}).lean()
+    } catch (error: any) {
+      throw new Error(error);
+    }
+  }
+
 
   static async findByOrgName() {
     try {
