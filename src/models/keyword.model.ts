@@ -58,6 +58,14 @@ export class KeywordModel extends BaseModel<IKeyword> {
     }
   }
 
+  static async findKeywords() {
+    try {
+      return Keyword.find().lean()
+    } catch (error: any) {
+      throw new Error(error);
+    }
+  }
+
 
   static async findByOrgName() {
     try {

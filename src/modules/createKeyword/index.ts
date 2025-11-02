@@ -53,8 +53,9 @@ const createKeyword = async () => {
         return;
     }
     await delayCustom(1000,2000);
+    let i: number = 0
     for( const { keyword, org_id } of keywords) {
-        logger.info(`Đang tìm: ${keyword} (org_id: ${org_id})`)
+        logger.info(`[${i+1}] Đang tìm: ${keyword} (org_id: ${org_id})`)
         // Đảm bảo input có sẵn
         await page.waitForSelector('#APjFqb', { visible: true});
 
@@ -87,14 +88,42 @@ const createKeyword = async () => {
         let urlAll = page.url()
         logger.info(`📄 URL tab All: ${url}`);
 
-        const newsTab = await page.$('a[href*="tbm=nws"]');
         let urlNews = '';
+
+        try {
+        const newsTab = await page.$('a[href*="tbm=nws"]');
         if (newsTab) {
-            await newsTab.click();
-            await page.waitForNavigation({ waitUntil: 'networkidle2' });
+            logger.info('📰 Tìm thấy tab Tin tức, đang chuyển...');
+
+            // Scroll phần tử vào viewport
+            await page.evaluate(el => {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, newsTab);
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            await Promise.all([
+                newsTab.click(),
+                page.waitForNavigation({ waitUntil: 'networkidle2' })
+            ]);
+
             urlNews = page.url();
             logger.info(`📄 URL tab News: ${urlNews}`);
+            } else {
+                logger.warn('⚠️ Không tìm thấy tab Tin tức — bỏ qua.');
+            }
+        } catch (err: any) {
+            logger.error(`❌ Lỗi khi click tab Tin tức: ${err.message}`);
         }
+
+        // const newsTab = await page.$('a[href*="tbm=nws"]');
+        // let urlNews = '';
+        // if (newsTab) {
+        //     await newsTab.click();
+        //     await page.waitForNavigation({ waitUntil: 'networkidle2' });
+        //     urlNews = page.url();
+        //     logger.info(`📄 URL tab News: ${urlNews}`);
+        // }
         // const newsUrl = page.url();
 
         // const { pageAll, url } = result;
@@ -112,6 +141,7 @@ const createKeyword = async () => {
         await KeywordModel.updateByKeyword(data.keyword, data)
         logger.info(`✅ Đã lưu ${keyword}`);
         await delayCustom(2500, 4000);
+        i++
     }
 
 

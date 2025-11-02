@@ -1,3 +1,4 @@
+import { envConfig } from "../config/env.config.js";
 import logger from "../config/logger.config.js";
 import KeywordModel from "../models/keyword.model.js";
 import { delayCustom } from "../utils/delayCustom.js";
@@ -7,15 +8,19 @@ import pageByUrl from "./page.url.js";
 
 const crawler = async () => {
 
-    const listKeyword = await KeywordModel.findByOrgName();
+    // const listKeyword = await KeywordModel.findByOrgName();
+    // const listKeyword = await KeywordModel.findKeywords()
+    const orgs_id = JSON.parse(envConfig.ORG_ID || "[]");
+    const keywords = await KeywordModel.findByOrgId(orgs_id);
+    console.log(keywords.length);
 
     const agent = 'agent-01'
     const { browser, page } = await initWeb(agent);
     await delayCustom(4000,5000);
 
     let i = 0
-    for(let keyword of listKeyword) {
-        logger.info(`[${i + 1}/${listKeyword.length}] Crawling từ khóa: ${keyword.keyword}`);
+    for(let keyword of keywords) {
+        logger.info(`[${i + 1}/${keywords.length}] Crawling từ khóa: ${keyword.keyword}`);
 
         const startTime = Date.now();
         let pageAll: any;

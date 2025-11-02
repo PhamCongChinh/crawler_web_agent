@@ -42,8 +42,6 @@ app.use(morgan("dev"));
 	process.on("SIGINT", gracefulShutdown);
 	process.on("SIGTERM", gracefulShutdown);
 
-	// await crawler()
-
 	cleanupVisited(3);
 
 	const intervalMs = 15 * 1000;
@@ -51,7 +49,7 @@ app.use(morgan("dev"));
 	while (true) {
 		try {
 			logger.info("Bắt đầu crawl...");
-			// await crawler(); // chặn tới khi crawler xong
+			await crawler(); // chặn tới khi crawler xong
 			logger.info("Crawl xong!");
 		} catch (err: any) {
 			logger.error("Lỗi khi crawl:", err.message);
