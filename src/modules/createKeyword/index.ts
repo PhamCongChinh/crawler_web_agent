@@ -73,8 +73,8 @@ const createKeyword = async () => {
         await delayCustom(2000, 3000)
 
         // --- Lấy URL hiện tại ---
-        const url = page.url();
-        logger.info(`📄 URL tab All: ${url}`);
+        let url = page.url();
+        // logger.info(`📄 URL tab All: ${url}`);
 
         // --- Nếu đang ở tab khác, quay về All ---
         if (url.includes('tbm=')) {
@@ -84,12 +84,18 @@ const createKeyword = async () => {
             logger.info('↩️ Quay lại tab Tất cả');
         }
 
+        let urlAll = page.url()
+        logger.info(`📄 URL tab All: ${url}`);
+
         const newsTab = await page.$('a[href*="tbm=nws"]');
+        let urlNews = '';
         if (newsTab) {
             await newsTab.click();
             await page.waitForNavigation({ waitUntil: 'networkidle2' });
+            urlNews = page.url();
+            logger.info(`📄 URL tab News: ${urlNews}`);
         }
-        const newsUrl = page.url();
+        // const newsUrl = page.url();
 
         // const { pageAll, url } = result;
         // await pageAll.waitForSelector('a[href*="tbm=nws"]', { visible: true });
@@ -99,8 +105,8 @@ const createKeyword = async () => {
 
         const data = {
             keyword: keyword,
-            url: url,
-            url_news: newsUrl,
+            url: urlAll,
+            url_news: urlNews,
             org_id: org_id
         }
         await KeywordModel.updateByKeyword(data.keyword, data)
