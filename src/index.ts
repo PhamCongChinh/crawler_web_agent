@@ -50,8 +50,8 @@ app.use(morgan("dev"));
 	while (true) {
 		try {
 			logger.info("Bắt đầu crawl...");
-			// await crawler(); // chặn tới khi crawler xong
-			await runConsumer()
+			await crawler(); // chặn tới khi crawler xong
+			// await runConsumer()
 			logger.info("Crawl xong!");
 		} catch (err: any) {
 			logger.error("Lỗi khi crawl:", err.message);

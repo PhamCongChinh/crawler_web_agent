@@ -106,8 +106,8 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
           const url = article.url;
           // in url ra json
           if (visited.has(url)) {
-            const urlVisited = url.length > 30 ? url.slice(0, 30) + "..." : url;
-            logger.info(`Bỏ qua (đã crawl): ${urlVisited}`);
+            // const urlVisited = url.length > 30 ? url.slice(0, 30) + "..." : url;
+            // logger.info(`Bỏ qua (đã crawl): ${urlVisited}`);
             continue;
           }
           addVisited(url, visited);

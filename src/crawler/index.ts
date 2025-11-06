@@ -8,8 +8,6 @@ import pageByUrl from "./page.url.js";
 
 const crawler = async () => {
 
-    // const listKeyword = await KeywordModel.findByOrgName();
-    // const listKeyword = await KeywordModel.findKeywords()
     const orgs_id = JSON.parse(envConfig.ORG_ID || "[]");
     const keywords = await KeywordModel.findByOrgId(orgs_id);
 
