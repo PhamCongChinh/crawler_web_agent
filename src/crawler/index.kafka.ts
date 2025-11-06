@@ -6,15 +6,34 @@ import crawlArticles from "./crawl.articles.js";
 import { initWeb } from "./init.web.js";
 import pageByUrl from "./page.url.js";
 
-const crawlerKafka = async (data: string) => {
+const crawlerKafka = async (data: any) => {
     console.log(data);
 
-    // const orgs_id = JSON.parse(envConfig.ORG_ID || "[]");
-    // const keywords = await KeywordModel.findByOrgId(orgs_id);
+    const keyword = data.get("keyword","")
 
-    // const agent = 'agent-01'
-    // const { browser, page } = await initWeb(agent);
-    // await delayCustom(3000,5000);
+    const kw: any = await KeywordModel.findByKeyword(keyword)
+
+    const agent = 'agent-01'
+    const { browser, page } = await initWeb(agent);
+    await delayCustom(3000,5000);
+
+
+    logger.info(`[] Crawling từ khóa: ${keyword}`);
+
+    const startTime = Date.now();
+    let pageAll: any;
+
+    try {
+        pageAll = await pageByUrl(page, kw.url);
+        if (pageAll) await crawlArticles(browser, pageAll, 'All', kw.keyword);
+    } catch (err: any) {
+        logger.error(`Lỗi crawl pageAll cho ${kw.keyword}`);
+    } finally {
+        if (pageAll && pageAll !== page) {
+            await pageAll.close().catch(() => {});
+        }
+    }
+
 
     // let i = 0
     // for(let keyword of keywords) {
