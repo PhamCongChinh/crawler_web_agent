@@ -71,7 +71,7 @@ export function addVisited(url: string, visited: Set<string>) {
 
 const visited = loadVisited();
 
-export const cleanupVisited = (days = 3) => {
+export const cleanupVisited = (days = 1) => {
   if (!fs.existsSync(VISITED_URL)) return;
 
   const stats = fs.statSync(VISITED_URL);
