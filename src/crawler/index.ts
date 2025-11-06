@@ -42,7 +42,7 @@ const crawler = async () => {
             if (!pageNewsReady) throw new Error("Không mở được pageNews");
             await crawlArticles(browser, pageNewsReady, 'News', keyword.keyword);
         } catch (err: any) {
-            logger.error(`Lỗi khi xử lý pageNews cho ${keyword.keyword}: ${err.message}`);
+            logger.error(`Lỗi khi xử lý pageNews cho ${keyword.keyword}`);
         } finally {
             if (pageNews && pageNews !== page) {
                 await pageNews.close().catch(() => {});

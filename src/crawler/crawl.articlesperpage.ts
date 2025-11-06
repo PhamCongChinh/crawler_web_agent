@@ -29,6 +29,6 @@ export const crawlArticlesPerPage = async (page: any, selector: any, key: any) =
         const res = await getNewsItems(page);
         return res;
     } catch (error) {
-        
+        logger.error("[crawlArticlesPerPage] Lỗi")
     }
 }

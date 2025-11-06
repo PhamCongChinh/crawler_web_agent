@@ -41,7 +41,7 @@ export const postArticle = async (listArticle: any) => {
             logger.info(`[SUCCESS] Gửi dữ liệu thành công: ${data.data.length} bài viết - ${process.env.URL_API_MASTER}`);
             return res.data;
         } catch (error: any) {
-            console.error(`[ERROR] Lỗi khi gửi dữ liệu: ${error.message}`);
+            logger.error(`[ERROR] Lỗi khi gửi dữ liệu: [postArticle]}`);
             return null;
         }
     } catch (error: any) {

@@ -19,7 +19,8 @@ const validateContentBeforeInsert = async (article: any, contentJson: any) => {
         contentJson.time_publication = res;
         return contentJson;
     } catch (error: any) {
-        logger.error(`Dữ liệu không hợp lệ: ${error.stack}`);
+        // logger.error(`Dữ liệu không hợp lệ: ${error.stack}`);
+        logger.error(`Dữ liệu không hợp lệ`);
         return null;
     }
 }
@@ -135,7 +136,7 @@ const generateContentBySelector = async (page: any, selector: any) => {
             const contentElement = document.querySelector(selectors.contentSelector);
             let firstImage = null;
             // const img = contentElement.querySelector('img');
-            
+
             const imgs = contentElement.querySelectorAll('img');
             if (imgs.length > 0) {
                 let img = imgs[0];

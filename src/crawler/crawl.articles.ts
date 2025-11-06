@@ -152,7 +152,8 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
       pageIndex++;
     }
   } catch (error: any) {
-    logger.error(`Lỗi crawlArticles cho ${key}: ${error.message}`);
+    // logger.error(`Lỗi crawlArticles cho ${key}: ${error.message}`);
+    logger.error(`Lỗi crawlArticles cho ${key}`);
   }
 };
 
