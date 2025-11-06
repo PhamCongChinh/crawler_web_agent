@@ -6,7 +6,8 @@ import crawlArticles from "./crawl.articles.js";
 import { initWeb } from "./init.web.js";
 import pageByUrl from "./page.url.js";
 
-const crawlerKafka = async (keyword: string) => {
+const crawlerKafka = async (data: string) => {
+    console.log(data);
 
     // const orgs_id = JSON.parse(envConfig.ORG_ID || "[]");
     // const keywords = await KeywordModel.findByOrgId(orgs_id);
