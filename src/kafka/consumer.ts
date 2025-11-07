@@ -2,21 +2,28 @@ import logger from "../config/logger.config.js";
 import crawlerKafka from "../crawler/index.kafka.js";
 import { delayCustom } from "../utils/delayCustom.js";
 import type { EachMessagePayload } from "kafkajs";
-import { Kafka } from "kafkajs";
+import { Kafka, logLevel } from "kafkajs";
 
 const agentId = process.env.AGENT_ID || "agent-01";
 
 const kafka = new Kafka({
     clientId: agentId,
-    brokers: ["103.97.125.64:9092"]
+    brokers: ["103.97.125.64:9092"],
+    logLevel: logLevel.NOTHING, // tắt hết log
 })
 
 const consumer = kafka.consumer({ groupId: "web-group" });
+const admin = kafka.admin();
 
 const runConsumer = async() => {
 
     try {
         logger.info("Kết nối Kafka consumer...");
+        await admin.connect();
+        const metadata = await admin.fetchTopicMetadata({ topics: ["unclassified_jobs_website"] });
+        const topic:any = metadata.topics[0];
+        logger.info(`Topic [${topic.name}] có ${topic.partitions.length} partition(s)`);
+
         await consumer.connect();
         await consumer.subscribe({ topic: "unclassified_jobs_website", fromBeginning: true });
         logger.info(`[${agentId}] Đã kết nối Kafka và sẵn sàng nhận task`);

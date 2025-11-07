@@ -24,7 +24,7 @@ const crawler = async () => {
 
         try {
             pageAll = await pageByUrl(page, keyword.url);
-            if (pageAll) await crawlArticles(browser, pageAll, 'All', keyword.keyword);
+            // if (pageAll) await crawlArticles(browser, pageAll, 'All', keyword.keyword);
         } catch (err: any) {
             logger.error(`Lỗi crawl pageAll cho ${keyword.keyword}: ${err.message}`);
         } finally {
@@ -40,7 +40,7 @@ const crawler = async () => {
             pageNews = await browser.newPage();
             const pageNewsReady = await pageByUrl(pageNews, keyword.url_news);
             if (!pageNewsReady) throw new Error("Không mở được pageNews");
-            await crawlArticles(browser, pageNewsReady, 'News', keyword.keyword);
+            // await crawlArticles(browser, pageNewsReady, 'News', keyword.keyword);
         } catch (err: any) {
             logger.error(`Lỗi khi xử lý pageNews cho ${keyword.keyword}`);
         } finally {

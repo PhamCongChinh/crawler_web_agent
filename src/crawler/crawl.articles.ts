@@ -84,7 +84,7 @@ export const cleanupVisited = (days = 1) => {
   }
 };
 
-const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
+const crawlArticles = async (browser: any, page: any, type: any, key: any, server: string) => {
   try {
     const selector =
       type === "All" ? getSelectorsAllType : getSelectorsNewsType;
@@ -114,7 +114,9 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any) => {
           const shortUrl = url.length > 30 ? url.slice(0, 30) + "..." : url;
           logger.info(`[${key}][${type}] - Bài viết [${i + 1}] ${shortUrl}`);
           post = await crawlContent(article, page, browser); // await thật sự
+          post.server = server || ""; // hoặc truyền server từ bên ngoài
           listPost.push(post);
+          console.log(JSON.stringify(post, null, 2));
           i++;
         }
       }
