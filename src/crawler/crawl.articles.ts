@@ -116,7 +116,6 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any, serve
           post = await crawlContent(article, page, browser); // await thật sự
           post.server = server || ""; // hoặc truyền server từ bên ngoài
           listPost.push(post);
-          console.log(JSON.stringify(post, null, 2));
           i++;
         }
       }
