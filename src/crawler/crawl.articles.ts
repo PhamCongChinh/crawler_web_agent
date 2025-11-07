@@ -84,7 +84,7 @@ export const cleanupVisited = (days = 1) => {
   }
 };
 
-const crawlArticles = async (browser: any, page: any, type: any, key: any, server: string) => {
+const crawlArticles = async (browser: any, page: any, type: any, key: any, server: string, data: any) => {
   try {
     const selector =
       type === "All" ? getSelectorsAllType : getSelectorsNewsType;

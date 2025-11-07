@@ -3,6 +3,7 @@ import crawlerKafka from "../crawler/index.kafka.js";
 import { delayCustom } from "../utils/delayCustom.js";
 import type { EachMessagePayload } from "kafkajs";
 import { Kafka, logLevel } from "kafkajs";
+import { sendCrawlResult } from "./producer.js";
 
 const agentId = process.env.AGENT_ID || "agent-01";
 
@@ -38,6 +39,19 @@ const runConsumer = async() => {
                     const data = JSON.parse(value);
                     // logger.info(`Nhận message từ Kafka: ${JSON.stringify(data)}`);
                     logger.info(`[${agentId}] Nhận keyword: ${data.keyword}`);
+
+                    await sendCrawlResult({
+                        type: "web_keyword",
+                        task_id: data?.task_id || "",
+                        keyword: data?.keyword || "",
+                        platform: data?.platform || "",
+                        created_at: data?.created_at || "",
+                        topic: data?.topic || "",
+                        assigned_bot: data?.assigned_bot || "",
+                        status: "RUNNING",
+                        success: true,
+                        bot_id: agentId,
+                    });
 
                     await crawlerKafka(data, agentId);
                 } catch (error: any) {
