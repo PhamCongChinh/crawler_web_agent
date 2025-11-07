@@ -6,17 +6,13 @@ import crawlArticles from "./crawl.articles.js";
 import { initWeb } from "./init.web.js";
 import pageByUrl from "./page.url.js";
 
-const crawlerKafka = async (data: any) => {
-    console.log(data);
+const crawlerKafka = async (data: any, agentId: string) => {
 
-    const keyword = data.get("keyword","")
+    const keyword = data.keyword || "";
+    const kw = await KeywordModel.findByKeyword(keyword);
 
-    const kw: any = await KeywordModel.findByKeyword(keyword)
-
-    const agent = 'agent-01'
-    const { browser, page } = await initWeb(agent);
+    const { browser, page } = await initWeb(agentId);
     await delayCustom(3000,5000);
-
 
     logger.info(`[] Crawling từ khóa: ${keyword}`);
 
@@ -24,58 +20,33 @@ const crawlerKafka = async (data: any) => {
     let pageAll: any;
 
     try {
-        pageAll = await pageByUrl(page, kw.url);
-        if (pageAll) await crawlArticles(browser, pageAll, 'All', kw.keyword);
+        pageAll = await pageByUrl(page, kw?.url);
+        if (pageAll) await crawlArticles(browser, pageAll, 'All', kw?.keyword);
     } catch (err: any) {
-        logger.error(`Lỗi crawl pageAll cho ${kw.keyword}`);
+        logger.error(`Lỗi crawl pageAll cho ${kw?.keyword}`);
     } finally {
         if (pageAll && pageAll !== page) {
             await pageAll.close().catch(() => {});
         }
     }
+    await delayCustom(1300, 2600);
+    
+    let pageNews: any;
+    try {
+        pageNews = await browser.newPage();
+        const pageNewsReady = await pageByUrl(pageNews, keyword.url_news);
+        if (!pageNewsReady) throw new Error("Không mở được pageNews");
+        await crawlArticles(browser, pageNewsReady, 'News', keyword.keyword);
+    } catch (err: any) {
+        logger.error(`Lỗi khi xử lý pageNews cho ${keyword.keyword}: ${err.message}`);
+    } finally {
+        if (pageNews && pageNews !== page) {
+            await pageNews.close().catch(() => {});
+        }
+    }
 
-
-    // let i = 0
-    // for(let keyword of keywords) {
-    //     logger.info(`[${i + 1}/${keywords.length}] Crawling từ khóa: ${keyword.keyword}`);
-
-    //     const startTime = Date.now();
-    //     let pageAll: any;
-
-    //     try {
-    //         pageAll = await pageByUrl(page, keyword.url);
-    //         if (pageAll) await crawlArticles(browser, pageAll, 'All', keyword.keyword);
-    //     } catch (err: any) {
-    //         logger.error(`Lỗi crawl pageAll cho ${keyword.keyword}: ${err.message}`);
-    //     } finally {
-    //         if (pageAll && pageAll !== page) {
-    //             await pageAll.close().catch(() => {});
-    //         }
-    //     }
-
-    //     await delayCustom(1300, 2600);
-
-    //     let pageNews: any;
-    //     try {
-    //         pageNews = await browser.newPage();
-    //         const pageNewsReady = await pageByUrl(pageNews, keyword.url_news);
-    //         if (!pageNewsReady) throw new Error("Không mở được pageNews");
-    //         await crawlArticles(browser, pageNewsReady, 'News', keyword.keyword);
-    //     } catch (err: any) {
-    //         logger.error(`Lỗi khi xử lý pageNews cho ${keyword.keyword}: ${err.message}`);
-    //     } finally {
-    //         if (pageNews && pageNews !== page) {
-    //             await pageNews.close().catch(() => {});
-    //         }
-    //     }
-
-    //     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-    //     logger.info(`Thời gian crawl "${keyword.keyword}": ${duration} giây`);
-
-    //     i++
-    //     await delayCustom(2000, 3200);
-    // }
-
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    logger.info(`Thời gian crawl "${keyword.keyword}": ${duration} giây`);
     // await browser.close().catch(() => {});
 }
 

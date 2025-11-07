@@ -31,6 +31,8 @@ app.use(morgan("dev"));
 		logger.info(`Server is running at http://localhost:${PORT}`);
 	});
 
+	await runConsumer();
+
 	const gracefulShutdown = async () => {
 		console.log("Gracefully shutting down...");
 		await mongo.disconnect();
@@ -46,24 +48,21 @@ app.use(morgan("dev"));
 	cleanupVisited(3);
 
 	const intervalMs = 15 * 1000;
-
-	while (true) {
-		try {
-			logger.info("Bắt đầu crawl...");
-			await crawler(); // chặn tới khi crawler xong
-			// await runConsumer()
-			logger.info("Crawl xong!");
-		} catch (err: any) {
-			logger.error("Lỗi khi crawl:", err.message);
-			logger.info("Khởi động lại crawler sau 5 giây...");
-			await new Promise(resolve => setTimeout(resolve, 5000)); // delay trước khi restart
-			continue; // quay lại vòng lặp
-		}
-		// delay cố định sau khi crawl xong
-		logger.info(`Chờ ${intervalMs / 1000} giây trước lần crawl tiếp theo...`);
-		await new Promise(resolve => setTimeout(resolve, intervalMs));
-	}
-
+	// while (true) {
+	// 	try {
+	// 		logger.info("Bắt đầu crawl...");
+	// 		await crawler(); // chặn tới khi crawler xong
+	// 		logger.info("Crawl xong!");
+	// 	} catch (err: any) {
+	// 		logger.error("Lỗi khi crawl:", err.message);
+	// 		logger.info("Khởi động lại crawler sau 5 giây...");
+	// 		await new Promise(resolve => setTimeout(resolve, 5000)); // delay trước khi restart
+	// 		continue; // quay lại vòng lặp
+	// 	}
+	// 	// delay cố định sau khi crawl xong
+	// 	logger.info(`Chờ ${intervalMs / 1000} giây trước lần crawl tiếp theo...`);
+	// 	await new Promise(resolve => setTimeout(resolve, intervalMs));
+	// }
 })();
 
 app.get("/", (_, res) => {
