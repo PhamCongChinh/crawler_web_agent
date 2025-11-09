@@ -35,6 +35,7 @@ app.use(morgan("dev"));
 
 	// runConsumer();
 	runAgent(2)
+	runAgent(3)
 
 	const gracefulShutdown = async () => {
 		console.log("Gracefully shutting down...");
