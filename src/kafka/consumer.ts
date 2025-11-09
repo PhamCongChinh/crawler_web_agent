@@ -40,20 +40,20 @@ const runConsumer = async() => {
                     // logger.info(`Nhận message từ Kafka: ${JSON.stringify(data)}`);
                     logger.info(`[${agentId}] Nhận keyword: ${data.keyword}`);
 
-                    await sendCrawlResult({
-                        type: "web_keyword",
-                        task_id: data?.task_id || "",
-                        keyword: data?.keyword || "",
-                        platform: data?.platform || "",
-                        created_at: data?.created_at || "",
-                        topic: data?.topic || "",
-                        assigned_bot: data?.assigned_bot || "",
-                        status: "RUNNING",
-                        success: true,
-                        bot_id: agentId,
-                    });
+                    // await sendCrawlResult({
+                    //     type: "web_keyword",
+                    //     task_id: data?.task_id || "",
+                    //     keyword: data?.keyword || "",
+                    //     platform: data?.platform || "",
+                    //     created_at: data?.created_at || "",
+                    //     topic: data?.topic || "",
+                    //     assigned_bot: data?.assigned_bot || "",
+                    //     status: "RUNNING",
+                    //     success: true,
+                    //     bot_id: agentId,
+                    // });
 
-                    await crawlerKafka(data, agentId);
+                    // await crawlerKafka(data, agentId);
                 } catch (error: any) {
                     logger.error(`Lỗi khi xử lý message: ${error.message}`);
                 }

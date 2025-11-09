@@ -14,6 +14,8 @@ import keywordRoutes from "./routes/keyword.routes.js";
 import logger from "./config/logger.config.js";
 import { cleanupVisited } from "./crawler/crawl.articles.js";
 import runConsumer from "./kafka/consumer.js";
+import { Kafka, logLevel } from "kafkajs";
+import crawlerKafka from "./crawler/index.kafka.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 4000;
@@ -31,7 +33,8 @@ app.use(morgan("dev"));
 		logger.info(`Server is running at http://localhost:${PORT}`);
 	});
 
-	await runConsumer();
+	// runConsumer();
+	runAgent(2)
 
 	const gracefulShutdown = async () => {
 		console.log("Gracefully shutting down...");
@@ -45,9 +48,9 @@ app.use(morgan("dev"));
 	process.on("SIGINT", gracefulShutdown);
 	process.on("SIGTERM", gracefulShutdown);
 
-	cleanupVisited(3);
+	// cleanupVisited(3);
 
-	const intervalMs = 15 * 1000;
+	// const intervalMs = 15 * 1000;
 	// while (true) {
 	// 	try {
 	// 		logger.info("Bắt đầu crawl...");
@@ -70,3 +73,42 @@ app.get("/", (_, res) => {
 });
 
 app.use("/api/keywords", keywordRoutes);
+
+
+async function launchAgent(index: number) {
+    const browser = await puppeteer.launch({
+        headless: false,
+        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        userDataDir: `C:\\Users\\chinhpc\\puppeteer-profile\\agent-${index}`,
+        args: ['--start-maximized'],
+        defaultViewport: null
+    });
+
+    const page = await browser.newPage();
+    console.log(`✅ Agent ${index} đã khởi động`);
+    return { browser, page };
+}
+
+async function runAgent(index: number) {
+    const kafka = new Kafka({ clientId: `agent-${index}`, brokers: ['103.97.125.64:9092'], logLevel: logLevel.NOTHING });
+    const consumer = kafka.consumer({ groupId: `web-group` });
+
+    await consumer.connect();
+    await consumer.subscribe({ topic: 'unclassified_jobs_website', fromBeginning: false });
+
+	// const { browser, page } = await launchAgent(index);
+	const agentId = "laksd"
+	const { browser, page } = await initWeb(agentId)
+
+    await consumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
+            const raw = message.value?.toString()!;
+            const data = JSON.parse(raw);
+            const keyword = data.keyword;
+            console.log(data)
+            console.log(`🔍 Agent ${index} xử lý: "${keyword}" | partition: ${partition} | offset: ${message.offset}`);
+			console.log(`✅ Agent ${index} đã khởi động và đang lắng nghe Kafka...`);
+			await crawlerKafka(data, `agent-${index}`, browser, page)
+        }
+    });
+}
