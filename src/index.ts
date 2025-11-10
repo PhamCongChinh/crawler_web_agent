@@ -16,6 +16,7 @@ import { cleanupVisited } from "./crawler/crawl.articles.js";
 import runConsumer from "./kafka/consumer.js";
 import { Kafka, logLevel } from "kafkajs";
 import crawlerKafka from "./crawler/index.kafka.js";
+import { envConfig } from "./config/env.config.js";
 dotenv.config();
 
 const PORT = process.env.PORT || 4000;
@@ -24,6 +25,11 @@ const app: Application = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
+
+
+const PROFILE_ID_1 = envConfig.PROFILE_ID_1
+const PROFILE_ID_2 = envConfig.PROFILE_ID_2
+const gpm = new GPMLoginSDK({ url: envConfig.GPM_URL });
 
 (async () => {
 	const mongo = MongoConnection.getInstance()
@@ -34,8 +40,8 @@ app.use(morgan("dev"));
 	});
 
 	// runConsumer();
-	runAgent(2)
-	runAgent(3)
+	runAgent(1, PROFILE_ID_1)
+	runAgent(2, PROFILE_ID_2)
 
 	const gracefulShutdown = async () => {
 		console.log("Gracefully shutting down...");
@@ -90,7 +96,20 @@ async function launchAgent(index: number) {
     return { browser, page };
 }
 
-async function runAgent(index: number) {
+async function gpmRun(agentId:any, profileId: any) {
+	const check = await gpm.checkConnection();
+    if (!check) throw new Error("GPM chưa kết nối được.");
+    const startRes = await gpm.startProfile(profileId);
+    if (!startRes) throw new Error("Không start được profile.");
+    const bot = await new Bot(gpm).setup(profileId);
+    const browser = bot.browser!;
+    if (!browser) throw new Error("Browser chưa được khởi tạo. Có thể GPM chưa start hoặc connect lỗi.");
+    const page = (await browser.pages())[0] ?? (await browser.newPage());
+    logger.info(`Agent ${agentId} started with GPM`);
+    return { agentId, browser, page };
+}
+
+async function runAgent(index: number, profileId: any) {
     const kafka = new Kafka({ clientId: `agent-${index}`, brokers: ['103.97.125.64:9092'], logLevel: logLevel.NOTHING });
     const consumer = kafka.consumer({ groupId: `web-group` });
 
@@ -98,8 +117,9 @@ async function runAgent(index: number) {
     await consumer.subscribe({ topic: 'unclassified_jobs_website', fromBeginning: false });
 
 	// const { browser, page } = await launchAgent(index);
-	const agentId = "laksd"
-	const { browser, page } = await initWeb(agentId)
+	const agentId = "agent-1"
+	// const { browser, page } = await initWeb(agentId)
+	const { browser, page } = await gpmRun(agentId, profileId)
 
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {

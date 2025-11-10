@@ -10,5 +10,8 @@ export const envConfig = {
 
     PROFILE_ID: process.env.PROFILE_ID || "4e6b81aa-2652-423d-b14e-f720f71b9ceb",
     GPM_URL: process.env.GPM_URL || "http://localhost:16137",
-    ORG_ID: process.env.ORG_ID
+    ORG_ID: process.env.ORG_ID,
+
+    PROFILE_ID_1: process.env.PROFILE_ID_1 || "4e6b81aa-2652-423d-b14e-f720f71b9ceb",
+    PROFILE_ID_2: process.env.PROFILE_ID_2 || "4e6b81aa-2652-423d-b14e-f720f71b9ceb",
 };
