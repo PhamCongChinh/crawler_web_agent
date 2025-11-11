@@ -54,7 +54,8 @@ export const convertContentToPost = (article: any, articleContent: any) => {
     source_id: author,
     source_name: author,
     source_url: articleAfterValidate.url,
-    sentiment: PROP_POST.SENTIMENT
+    sentiment: PROP_POST.SENTIMENT,
+    server: 'server_test'
   };
   return post;
 };
