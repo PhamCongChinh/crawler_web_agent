@@ -17,6 +17,9 @@ import runConsumer from "./kafka/consumer.js";
 import { Kafka, logLevel } from "kafkajs";
 import crawlerKafka from "./crawler/index.kafka.js";
 import { envConfig } from "./config/env.config.js";
+import { fork } from "child_process";
+import path from "path";
+
 dotenv.config();
 
 const PORT = process.env.PORT || 4000;
@@ -27,9 +30,20 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 
-const PROFILE_ID_1 = envConfig.PROFILE_ID_1
-const PROFILE_ID_2 = envConfig.PROFILE_ID_2
-const gpm = new GPMLoginSDK({ url: envConfig.GPM_URL });
+// const PROFILE_ID_1 = envConfig.PROFILE_ID_1
+// const PROFILE_ID_2 = envConfig.PROFILE_ID_2
+// const gpm = new GPMLoginSDK({ url: envConfig.GPM_URL });
+
+// const index = process.argv[2];
+// const profileId = process.argv[3];
+
+
+// const agentPath = path.resolve("./dist/agent-runner.js");
+
+
+// fork(agentPath, ["1", PROFILE_ID_1]);
+// fork(agentPath, ["2", PROFILE_ID_2]);
+
 
 (async () => {
 	const mongo = MongoConnection.getInstance()
@@ -39,9 +53,31 @@ const gpm = new GPMLoginSDK({ url: envConfig.GPM_URL });
 		logger.info(`Server is running at http://localhost:${PORT}`);
 	});
 
-	// runConsumer();
-	runAgent(1, PROFILE_ID_1)
-	runAgent(2, PROFILE_ID_2)
+
+	const kafka = new Kafka({
+		clientId: `agent-${process.pid}`,
+		brokers: ['103.97.125.64:9092'],
+		logLevel: logLevel.NOTHING
+	});
+	const consumer = kafka.consumer({ groupId: `web-group` });
+
+	await consumer.connect();
+	await consumer.subscribe({ topic: 'unclassified_jobs_website', fromBeginning: false });
+
+	const { browser, page } = await initWeb(`agent-${process.pid}`);
+
+	await consumer.run({
+		eachMessage: async ({ topic, partition, message }) => {
+			const raw = message.value?.toString()!;
+			const data = JSON.parse(raw);
+			const keyword = data.keyword;
+			if (keyword) {
+				logger.info(`🔍 Agent ${process.pid} xử lý: "${keyword}" | partition: ${partition} | offset: ${message.offset}`);
+				await crawlerKafka(data, `agent-${process.pid}`, browser, page);
+			}
+		}
+	});
+
 
 	const gracefulShutdown = async () => {
 		console.log("Gracefully shutting down...");
@@ -82,54 +118,54 @@ app.get("/", (_, res) => {
 app.use("/api/keywords", keywordRoutes);
 
 
-async function launchAgent(index: number) {
-    const browser = await puppeteer.launch({
-        headless: false,
-        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        userDataDir: `C:\\Users\\chinhpc\\puppeteer-profile\\agent-${index}`,
-        args: ['--start-maximized'],
-        defaultViewport: null
-    });
+// async function launchAgent(index: number) {
+//     const browser = await puppeteer.launch({
+//         headless: false,
+//         executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+//         userDataDir: `C:\\Users\\chinhpc\\puppeteer-profile\\agent-${index}`,
+//         args: ['--start-maximized'],
+//         defaultViewport: null
+//     });
 
-    const page = await browser.newPage();
-    console.log(`✅ Agent ${index} đã khởi động`);
-    return { browser, page };
-}
+//     const page = await browser.newPage();
+//     console.log(`✅ Agent ${index} đã khởi động`);
+//     return { browser, page };
+// }
 
-async function gpmRun(agentId:any, profileId: any) {
-	const check = await gpm.checkConnection();
-    if (!check) throw new Error("GPM chưa kết nối được.");
-    const startRes = await gpm.startProfile(profileId);
-    if (!startRes) throw new Error("Không start được profile.");
-    const bot = await new Bot(gpm).setup(profileId);
-    const browser = bot.browser!;
-    if (!browser) throw new Error("Browser chưa được khởi tạo. Có thể GPM chưa start hoặc connect lỗi.");
-    const page = (await browser.pages())[0] ?? (await browser.newPage());
-    logger.info(`Agent ${agentId} started with GPM`);
-    return { agentId, browser, page };
-}
+// async function gpmRun(agentId:any, profileId: any) {
+// 	const check = await gpm.checkConnection();
+//     if (!check) throw new Error("GPM chưa kết nối được.");
+//     const startRes = await gpm.startProfile(profileId);
+//     if (!startRes) throw new Error("Không start được profile.");
+//     const bot = await new Bot(gpm).setup(profileId);
+//     const browser = bot.browser!;
+//     if (!browser) throw new Error("Browser chưa được khởi tạo. Có thể GPM chưa start hoặc connect lỗi.");
+//     const page = (await browser.pages())[0] ?? (await browser.newPage());
+//     logger.info(`Agent ${agentId} started with GPM`);
+//     return { agentId, browser, page };
+// }
 
-async function runAgent(index: number, profileId: any) {
-    const kafka = new Kafka({ clientId: `agent-${index}`, brokers: ['103.97.125.64:9092'], logLevel: logLevel.NOTHING });
-    const consumer = kafka.consumer({ groupId: `web-group` });
+// async function runAgent(index: number, profileId: any) {
+//     const kafka = new Kafka({ clientId: `agent-${index}`, brokers: ['103.97.125.64:9092'], logLevel: logLevel.NOTHING });
+//     const consumer = kafka.consumer({ groupId: `web-group` });
 
-    await consumer.connect();
-    await consumer.subscribe({ topic: 'unclassified_jobs_website', fromBeginning: false });
+//     await consumer.connect();
+//     await consumer.subscribe({ topic: 'unclassified_jobs_website', fromBeginning: false });
 
-	// const { browser, page } = await launchAgent(index);
-	const agentId = "agent-1"
-	// const { browser, page } = await initWeb(agentId)
-	const { browser, page } = await gpmRun(agentId, profileId)
+// 	// const { browser, page } = await launchAgent(index);
+// 	const agentId = "agent-1"
+// 	// const { browser, page } = await initWeb(agentId)
+// 	const { browser, page } = await gpmRun(agentId, profileId)
 
-    await consumer.run({
-        eachMessage: async ({ topic, partition, message }) => {
-            const raw = message.value?.toString()!;
-            const data = JSON.parse(raw);
-            const keyword = data.keyword;
-            console.log(data)
-            console.log(`🔍 Agent ${index} xử lý: "${keyword}" | partition: ${partition} | offset: ${message.offset}`);
-			console.log(`✅ Agent ${index} đã khởi động và đang lắng nghe Kafka...`);
-			await crawlerKafka(data, `agent-${index}`, browser, page)
-        }
-    });
-}
+//     await consumer.run({
+//         eachMessage: async ({ topic, partition, message }) => {
+//             const raw = message.value?.toString()!;
+//             const data = JSON.parse(raw);
+//             const keyword = data.keyword;
+//             console.log(data)
+//             console.log(`🔍 Agent ${index} xử lý: "${keyword}" | partition: ${partition} | offset: ${message.offset}`);
+// 			console.log(`✅ Agent ${index} đã khởi động và đang lắng nghe Kafka...`);
+// 			await crawlerKafka(data, `agent-${index}`, browser, page)
+//         }
+//     });
+// }

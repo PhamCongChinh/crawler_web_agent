@@ -53,7 +53,7 @@ export const sendCrawlResult = async ({
 
     await producer.connect();
     await producer.send({
-      topic: "unclassified_jobs_website",
+      topic: "crawl-results",
       messages: [{ value: jsonData }],
     });
 

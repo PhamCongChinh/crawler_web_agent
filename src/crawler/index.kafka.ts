@@ -12,6 +12,19 @@ const crawlerKafka = async (data: any, agentId: string, browser: any, page: any)
 	const server = data.server || "";
 	const kw = await KeywordModel.findByKeyword(keyword);
 
+	await sendCrawlResult({
+		type: "web_keyword",
+		task_id: data?.task_id || "",
+		keyword: data?.keyword || "",
+		platform: data?.platform || "",
+		created_at: data?.created_at || "",
+		topic: data?.topic || "",
+		assigned_bot: data?.assigned_bot || "",
+		status: "RUNNING",
+		success: true,
+		bot_id: agentId,
+	});
+
 	// const { browser, page } = await initWeb(agentId);
 	await delayCustom(3000, 5000);
 
@@ -33,40 +46,40 @@ const crawlerKafka = async (data: any, agentId: string, browser: any, page: any)
 	}
 	await delayCustom(1300, 2600);
 
-	// let pageNews: any;
-	// try {
-	// 	pageNews = await browser.newPage();
-	// 	const pageNewsReady = await pageByUrl(pageNews, keyword.url_news);
-	// 	if (!pageNewsReady) throw new Error("Không mở được pageNews");
-	// 	await crawlArticles(
-	// 		browser,
-	// 		pageNewsReady,
-	// 		"News",
-	// 		kw?.keyword,
-	// 		server,
-	// 		data
-	// 	);
-	// } catch (err: any) {
-	// 	logger.error(`Lỗi khi xử lý pageNews cho ${kw?.keyword}: ${err.message}`);
-	// } finally {
-	// 	if (pageNews && pageNews !== page) {
-	// 		await pageNews.close().catch(() => { });
-	// 	}
-	// }
+	let pageNews: any;
+	try {
+		pageNews = await browser.newPage();
+		const pageNewsReady = await pageByUrl(pageNews, keyword.url_news);
+		if (!pageNewsReady) throw new Error("Không mở được pageNews");
+		await crawlArticles(
+			browser,
+			pageNewsReady,
+			"News",
+			kw?.keyword,
+			server,
+			data
+		);
+	} catch (err: any) {
+		logger.error(`Lỗi khi xử lý pageNews cho ${kw?.keyword}: ${err.message}`);
+	} finally {
+		if (pageNews && pageNews !== page) {
+			await pageNews.close().catch(() => { });
+		}
+	}
 
 	const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-	// await sendCrawlResult({
-	// 	type: "web_keyword",
-	// 	task_id: data?.task_id || "",
-	// 	keyword: data?.keyword || "",
-	// 	platform: data?.platform || "",
-	// 	created_at: data?.created_at || "",
-	// 	topic: data?.topic || "",
-	// 	assigned_bot: data?.assigned_bot || "",
-	// 	status: "DONE",
-	// 	success: true,
-	// 	bot_id: agentId,
-	// });
+	await sendCrawlResult({
+		type: "web_keyword",
+		task_id: data?.task_id || "",
+		keyword: data?.keyword || "",
+		platform: data?.platform || "",
+		created_at: data?.created_at || "",
+		topic: data?.topic || "",
+		assigned_bot: data?.assigned_bot || "",
+		status: "DONE",
+		success: true,
+		bot_id: agentId,
+	});
 	logger.info(`Thời gian crawl "${keyword}": ${duration} giây`);
 	console.log(`✅ Agent ${agentId} đã khởi động và đang lắng nghe Kafka...`);
 	// await browser.close().catch(() => {});
