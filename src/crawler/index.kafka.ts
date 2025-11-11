@@ -49,7 +49,7 @@ const crawlerKafka = async (data: any, agentId: string, browser: any, page: any)
 	let pageNews: any;
 	try {
 		pageNews = await browser.newPage();
-		const pageNewsReady = await pageByUrl(pageNews, keyword.url_news);
+		const pageNewsReady = await pageByUrl(pageNews, kw?.url_news);
 		if (!pageNewsReady) throw new Error("Không mở được pageNews");
 		await crawlArticles(
 			browser,
