@@ -3,7 +3,7 @@ dotenv.config();
 
 export const LINE_STRING = '---------------------------------------------------------------------------';
 
-export const ROOT_URL: string = `${process.env.URL_API_MASTER!}/api/v1/posts/insert-unclassified-org-posts`
+export const ROOT_URL: string = `${process.env.URL_API_MASTER_TEST!}/api/v1/posts/insert-unclassified-org-posts`
 
 
 // export const NUMBER_ARTICLE_PER_CHUNK = 20;

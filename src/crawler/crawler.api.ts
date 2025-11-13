@@ -38,7 +38,7 @@ export const postArticle = async (listArticle: any) => {
         };
         try {
             const res = await axios.post(ROOT_URL, data);
-            logger.info(`[SUCCESS] Gửi dữ liệu thành công: ${data.data.length} bài viết - ${process.env.URL_API_MASTER}`);
+            logger.info(`[SUCCESS] Gửi dữ liệu thành công: ${data.data.length} bài viết - ${process.env.URL_API_MASTER_TEST}`);
             return res.data;
         } catch (error: any) {
             logger.error(`[ERROR] Lỗi khi gửi dữ liệu: [postArticle]}`);

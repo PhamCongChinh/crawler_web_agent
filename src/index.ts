@@ -37,6 +37,7 @@ app.use(morgan("dev"));
 	});
 
 	// pnpm run start:1
+	cleanupVisited(1);
 
 	const agentId = process.argv.find(arg => arg.startsWith('--id='))?.split('=')[1] || 'default';
 
@@ -45,7 +46,7 @@ app.use(morgan("dev"));
 		brokers: ['103.97.125.64:9092'],
 		logLevel: logLevel.INFO
 	});
-	const consumer = kafka.consumer({ groupId: `web-group`, sessionTimeout: 600000 });
+	const consumer = kafka.consumer({ groupId: `web-group-${agentId}`, sessionTimeout: 600000 });
 
 	await consumer.connect();
 	await consumer.subscribe({ topic: 'unclassified_jobs_website', fromBeginning: false });
@@ -62,15 +63,15 @@ app.use(morgan("dev"));
 			const keyword = data.keyword;
 
 			try {
-				logger.info(`🔍 Agent ${process.pid} xử lý: "${keyword}" | partition: ${partition} | offset: ${message.offset}`);
+				logger.info(`Agent ${process.pid} xử lý: "${keyword}" | partition: ${partition} | offset: ${message.offset}`);
 				await crawlerKafka(data, `agent-${process.pid}`, browser, page);
+				
+				await consumer.commitOffsets([{ topic, partition, offset: (Number(offset) + 1).toString() }]);
 				await heartbeat(); // giữ kết nối với Kafka// Sau khi xử lý xong, commit offset
-				await consumer.commitOffsets([
-					{ topic, partition, offset: (parseInt(offset) + 1).toString() },
-				]);
-				logger.info(`✅ Committed offset ${parseInt(offset) + 1} for keyword "${keyword}"`);
+				logger.info(`Commit done for offset ${Number(offset) + 1} on partition ${partition}`);
+
 			} catch (error: any) {
-				logger.error(`❌ Lỗi xử lý keyword "${keyword}": ${error.message}`);
+				logger.error(`Lỗi xử lý keyword "${keyword}": ${error.message}`);
 			}
 		}
 	});
@@ -78,6 +79,7 @@ app.use(morgan("dev"));
 
 	const gracefulShutdown = async () => {
 		console.log("Gracefully shutting down...");
+		await consumer.disconnect();
 		await mongo.disconnect();
 		server.close(() => {
 			console.log("Server stopped, MongoDB connection closed");
@@ -88,7 +90,7 @@ app.use(morgan("dev"));
 	process.on("SIGINT", gracefulShutdown);
 	process.on("SIGTERM", gracefulShutdown);
 
-	// cleanupVisited(3);
+	
 
 	// const intervalMs = 15 * 1000;
 	// while (true) {
