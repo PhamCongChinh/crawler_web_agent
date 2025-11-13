@@ -67,22 +67,23 @@ app.use(morgan("dev"));
 				await crawlerKafka(data, `agent-${process.pid}`, browser, page);
 				
 				await consumer.commitOffsets([{ topic, partition, offset: (Number(offset) + 1).toString() }]);
-				await heartbeat(); // giữ kết nối với Kafka// Sau khi xử lý xong, commit offset
-				logger.info(`Commit done for offset ${Number(offset) + 1} on partition ${partition}`);
+				await heartbeat(); // giữ kết nối với Kafka
+				logger.info(`Đã commit xong tại offset ${Number(offset) + 1} trên phân vùng ${partition}`);
 				logger.info(`Agent ${agentId} đã khởi động và đang lắng nghe Kafka...`);
 			} catch (error: any) {
-				logger.error(`Lỗi xử lý keyword "${keyword}": ${error.message}`);
+				// logger.error(`Lỗi xử lý keyword "${keyword}": ${error.message}`);
+				logger.error(`Lỗi xử lý keyword "${keyword}"`);
 			}
 		}
 	});
 
 
 	const gracefulShutdown = async () => {
-		console.log("Gracefully shutting down...");
+		logger.info("Gracefully shutting down...");
 		await consumer.disconnect();
 		await mongo.disconnect();
 		server.close(() => {
-			console.log("Server stopped, MongoDB connection closed");
+			logger.info("Server stopped, MongoDB connection closed");
 			process.exit(0);
 		});
 	};

@@ -57,9 +57,9 @@ export const sendCrawlResult = async ({
       messages: [{ value: jsonData }],
     });
 
-    logger.info(`✅ Sent crawl result to Kafka: ${jsonData}`);
+    logger.info(`Gửi kết quả đến Kafka: ${jsonData}`);
   } catch (error: any) {
-    logger.error(`❌ Failed to send crawl result: ${error.message}`);
+    logger.error(`Failed to send crawl result: ${error.message}`);
   } finally {
     await producer.disconnect(); // hoặc để open connection lâu dài
   }

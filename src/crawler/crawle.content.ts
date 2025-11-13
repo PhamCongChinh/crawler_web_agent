@@ -140,9 +140,15 @@ const generateContentBySelector = async (page: any, selector: any) => {
             const imgs = contentElement.querySelectorAll('img');
             if (imgs.length > 0) {
                 let img = imgs[0];
-                if (window.location.hostname.includes('baomoi.com') && imgs.length > 1) {
+                if (
+                    img &&
+                    img.src &&
+                    img.src.startsWith('https://photo-baomoi.bmcdn.me/') &&
+                    imgs.length > 1
+                ) {
                     img = imgs[1];
                 }
+
                 firstImage =
                     img.src && !img.src.startsWith('data:')
                         ? img.src
@@ -150,9 +156,7 @@ const generateContentBySelector = async (page: any, selector: any) => {
                         img.dataset.original ||
                         img.getAttribute('data-src') ||
                         img.getAttribute('data-original') ||
-                        (img.srcset
-                            ? img.srcset.split(',')[0].trim().split(' ')[0]
-                            : null);
+                        (img.srcset ? img.srcset.split(',')[0].trim().split(' ')[0] : null);
             }
 
 
@@ -205,7 +209,7 @@ export const crawlContent = async (article: any, page: any, browser: any) => {
         await delayCustom(1000,2000)
         return post
     } catch (error:any) {
-        logger.error(`Error crawling ${article.url}: ${error.message}`);
+        // logger.error(`Error crawling ${article.url}: ${error.message}`);
     } finally {
         await pageDetail.close(); // ⚡ phải await
     }
