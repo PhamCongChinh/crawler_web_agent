@@ -113,8 +113,7 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any, serve
           addVisited(url, visited);
           const shortUrl = url.length > 30 ? url.slice(0, 30) + "..." : url;
           logger.info(`[${key}][${type}] - Bài viết [${i + 1}] ${shortUrl}`);
-          post = await crawlContent(article, page, browser); // await thật sự
-          post.server = server || ""; // hoặc truyền server từ bên ngoài
+          post = await crawlContent(article, page, browser, server); // await thật sự
           listPost.push(post);
           i++;
         }

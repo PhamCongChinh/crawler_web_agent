@@ -188,7 +188,7 @@ const generateContentBySelector = async (page: any, selector: any) => {
     }
 }
 
-export const crawlContent = async (article: any, page: any, browser: any) => {
+export const crawlContent = async (article: any, page: any, browser: any, server: string) => {
     const pageDetail = await browser.newPage(); // tab mới
     try {
         const listSelector = await SelectorModel.findAll();
@@ -204,7 +204,7 @@ export const crawlContent = async (article: any, page: any, browser: any) => {
         const contentAfterValidate = await validateContentBeforeInsert(article, content);
         
         if (contentAfterValidate) {
-            post = convertContentToPost(article, contentAfterValidate)
+            post = convertContentToPost(article, contentAfterValidate, server)
         }
         await delayCustom(1000,2000)
         return post
