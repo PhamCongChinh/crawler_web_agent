@@ -11,6 +11,11 @@ const crawlerKafka = async (data: any, agentId: string, browser: any, page: any)
 	const keyword = data.keyword || "";
 	const server = data.server || "";
 	const kw = await KeywordModel.findByKeyword(keyword);
+	if (!kw) {
+		logger.warn(`Không tìm thấy keyword "${keyword}" trong DB`);
+		return;
+	}
+
 
 	await sendCrawlResult({
 		type: "web_keyword",
@@ -81,7 +86,7 @@ const crawlerKafka = async (data: any, agentId: string, browser: any, page: any)
 		bot_id: agentId,
 	});
 	logger.info(`Thời gian crawl "${keyword}": ${duration} giây`);
-	console.log(`✅ Agent ${agentId} đã khởi động và đang lắng nghe Kafka...`);
+	logger.info(`✅ Agent ${agentId} đã khởi động và đang lắng nghe Kafka...`);
 	// await browser.close().catch(() => {});
 };
 

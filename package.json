@@ -8,7 +8,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "ts-node-esm src/index.ts"
+    "dev": "ts-node src/index.ts",
+    "start:1": "node dist/index.js --id=1",
+    "start:2": "node dist/index.js --id=2"
   },
   "keywords": [],
   "author": "",

@@ -17,8 +17,6 @@ import runConsumer from "./kafka/consumer.js";
 import { Kafka, logLevel } from "kafkajs";
 import crawlerKafka from "./crawler/index.kafka.js";
 import { envConfig } from "./config/env.config.js";
-import { fork } from "child_process";
-import path from "path";
 
 dotenv.config();
 
@@ -30,21 +28,6 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 
-// const PROFILE_ID_1 = envConfig.PROFILE_ID_1
-// const PROFILE_ID_2 = envConfig.PROFILE_ID_2
-// const gpm = new GPMLoginSDK({ url: envConfig.GPM_URL });
-
-// const index = process.argv[2];
-// const profileId = process.argv[3];
-
-
-// const agentPath = path.resolve("./dist/agent-runner.js");
-
-
-// fork(agentPath, ["1", PROFILE_ID_1]);
-// fork(agentPath, ["2", PROFILE_ID_2]);
-
-
 (async () => {
 	const mongo = MongoConnection.getInstance()
   	await mongo.connect()
@@ -53,13 +36,16 @@ app.use(morgan("dev"));
 		logger.info(`Server is running at http://localhost:${PORT}`);
 	});
 
+	// pnpm run start:1
+
+	const agentId = process.argv.find(arg => arg.startsWith('--id='))?.split('=')[1] || 'default';
 
 	const kafka = new Kafka({
-		clientId: `agent-${process.pid}`,
+		clientId: `agent-${agentId}`, //clientId: `agent-${process.pid}`,
 		brokers: ['103.97.125.64:9092'],
-		logLevel: logLevel.NOTHING
+		logLevel: logLevel.INFO
 	});
-	const consumer = kafka.consumer({ groupId: `web-group` });
+	const consumer = kafka.consumer({ groupId: `web-group`, sessionTimeout: 600000 });
 
 	await consumer.connect();
 	await consumer.subscribe({ topic: 'unclassified_jobs_website', fromBeginning: false });
@@ -67,13 +53,24 @@ app.use(morgan("dev"));
 	const { browser, page } = await initWeb(`agent-${process.pid}`);
 
 	await consumer.run({
-		eachMessage: async ({ topic, partition, message }) => {
+		autoCommit: false,
+		eachMessage: async ({ topic, partition, message, heartbeat }) => {
 			const raw = message.value?.toString()!;
+			const offset = message.offset;
+
 			const data = JSON.parse(raw);
 			const keyword = data.keyword;
-			if (keyword) {
+
+			try {
 				logger.info(`🔍 Agent ${process.pid} xử lý: "${keyword}" | partition: ${partition} | offset: ${message.offset}`);
 				await crawlerKafka(data, `agent-${process.pid}`, browser, page);
+				await heartbeat(); // giữ kết nối với Kafka// Sau khi xử lý xong, commit offset
+				await consumer.commitOffsets([
+					{ topic, partition, offset: (parseInt(offset) + 1).toString() },
+				]);
+				logger.info(`✅ Committed offset ${parseInt(offset) + 1} for keyword "${keyword}"`);
+			} catch (error: any) {
+				logger.error(`❌ Lỗi xử lý keyword "${keyword}": ${error.message}`);
 			}
 		}
 	});
