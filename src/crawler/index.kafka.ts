@@ -16,7 +16,6 @@ const crawlerKafka = async (data: any, agentId: string, browser: any, page: any)
 		return;
 	}
 
-
 	await sendCrawlResult({
 		type: "web_keyword",
 		task_id: data?.task_id || "",
@@ -30,7 +29,6 @@ const crawlerKafka = async (data: any, agentId: string, browser: any, page: any)
 		bot_id: agentId,
 	});
 
-	// const { browser, page } = await initWeb(agentId);
 	await delayCustom(3000, 5000);
 
 	logger.info(`[${agentId}] Crawling từ khóa: ${keyword}`);
@@ -86,7 +84,7 @@ const crawlerKafka = async (data: any, agentId: string, browser: any, page: any)
 		bot_id: agentId,
 	});
 	logger.info(`Thời gian crawl "${keyword}": ${duration} giây`);
-	logger.info(`✅ Agent ${agentId} đã khởi động và đang lắng nghe Kafka...`);
+	
 	// await browser.close().catch(() => {});
 };
 

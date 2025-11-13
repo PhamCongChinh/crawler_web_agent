@@ -91,7 +91,7 @@ const crawlArticles = async (browser: any, page: any, type: any, key: any, serve
     const newsNextPageSelector = selector.newsNextPageSelector;
 
     let pageIndex = 1;
-    while (pageIndex < 2) {
+    while (true) {
       logger.info(
         `[${key}][${type}] - Trang ${pageIndex}: Crawl bắt đầu với từ khóa: ${key}`
       );
